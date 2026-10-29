@@ -1,0 +1,83 @@
+{
+  "id": "https://github.com/groue/grdb.swift",
+  "name": "GRDB.swift (records against Core Data)",
+  "domain": "storage",
+  "category": "sqlite-and-orms",
+  "baseline": "Core Data (NSManagedObject fetch and insert on an SQLite store, default settings)",
+  "verdict": "confirm",
+  "verdict_reason": "In GRDB's Release-build harness, change-tracking Record objects fetched 200,000 rows in 0.24 against Core Data's 0.45 and inserted 50,000 in 0.36 against 0.40. GRDB is faster on both operations; the fetch gap is about 1.9x and the insert gap is about 10%.",
+  "evidence_tier": "A",
+  "tier_reason": "Public XCTest harness in the repository, run with the Release test configuration, with the machine (MacBookPro18,1) and Xcode 16.2 stated on the results page.",
+  "claimed_speedup": "Records with change tracking: fetch 0.24 vs 0.45 for Core Data (1.9x, derived from page data), insert 0.36 vs 0.40 (1.1x, derived from page data). Plain records fetch in 0.14 vs 1.87 for FMDB and 0.73 for SQLite.swift. The page prints no unit; the harness uses XCTest measure(), which reports seconds.",
+  "workload": "Fetch 200,000 rows of 10 integer columns into objects and read every property; insert 50,000 such rows. Same table shape in every library.",
+  "metric": "time",
+  "hardware": "MacBookPro18,1 (Apple M1 Pro)",
+  "os": "",
+  "toolchain": "Xcode 16.2; Release test configuration (GRDBOSXPerformanceComparisonTests scheme)",
+  "benchmark_date": "2025-01-26",
+  "benchmark_url": "https://github.com/groue/GRDB.swift/wiki/Performance",
+  "repo_url": "https://github.com/groue/GRDB.swift",
+  "docs_url": null,
+  "license": "MIT",
+  "usability": "copyable",
+  "language": "Swift + C",
+  "platforms": "iOS 13+, macOS 10.15+, tvOS 13+, watchOS 7+, Linux",
+  "install": "Swift Package Manager, CocoaPods",
+  "maintenance_status": "active",
+  "stars": 8714,
+  "last_commit": "2026-08-08",
+  "one_liner": "SQLite toolkit for Swift whose record types fetched rows about 1.9x faster than Core Data in its own Release-build harness.",
+  "how_it_is_fast": "GRDB is a thin layer over the SQLite C API: statements are prepared and cached, and rows are decoded straight into Swift values without a managed object graph, faulting or context bookkeeping in between. Cursors iterate the result set without copying it into an array first. Reading columns by index instead of by name brings record fetches to 0.06, against 0.04 for raw SQLite calls in the same run.",
+  "use_it_when": [
+    "Reading large result sets into Swift structs or classes, where the published gap over Core Data is largest",
+    "You want SQL-level control (schemas, indexes, joins, migrations) and value types instead of managed objects",
+    "You are on FMDB or SQLite.swift and decode rows into records: GRDB fetched records in 0.14 against 1.87 and 0.73"
+  ],
+  "skip_it_when": [
+    "Insert-heavy work, where the measured gap over Core Data is only 0.36 vs 0.40",
+    "Fetching change-tracked objects where Realm was faster in the same run (0.10 vs 0.24)",
+    "You depend on Core Data features GRDB does not provide by itself, such as NSPersistentCloudKitContainer mirroring or faulting of large object graphs"
+  ],
+  "caveats": [
+    "Run by GRDB's author on a Mac, not an iPhone; no iOS device numbers are published",
+    "The Core Data test reads attributes through key-value coding (value(forKey:)) rather than generated accessors, which may add cost on Core Data's side",
+    "The page prints no unit; values are XCTest measure() averages",
+    "One table shape (10 integer columns); no relationships, strings or blobs"
+  ],
+  "tradeoffs": [
+    "You write the schema, SQL and migrations yourself",
+    "No automatic object graph or faulting; relationships are queried explicitly",
+    "Change tracking needs the Record base class, which fetched more slowly than plain records (0.24 vs 0.14)"
+  ],
+  "evidence": [
+    {
+      "url": "https://raw.githubusercontent.com/wiki/groue/GRDB.swift/Performance.md",
+      "quote": "Last updated January 26, 2025"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/wiki/groue/GRDB.swift/Performance.md",
+      "quote": "This report was generated on a MacBookPro18,1, with Xcode 16.2, by running the following command:"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/wiki/groue/GRDB.swift/Performance.md",
+      "quote": "| Fetch | 0.24 | ¹ | ¹ | ¹ | 0.45 | 0.10 |"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/wiki/groue/GRDB.swift/Performance.md",
+      "quote": "| Insert | 0.36 | ¹ | ¹ | ¹ | 0.40 | 0.46 |"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/wiki/groue/GRDB.swift/Performance.md",
+      "quote": "| Fetch | 0.14 | 0.04 | 1.87 | 0.73 | ¹ | ¹ |"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/wiki/groue/GRDB.swift/Performance.md",
+      "quote": "This test fetches an array of 200000 record objects initiated from rows of 10 ints."
+    },
+    {
+      "url": "https://raw.githubusercontent.com/wiki/groue/GRDB.swift/Performance.md",
+      "quote": "This test inserts 50000 rows of 10 ints, by setting query arguments given their position."
+    }
+  ],
+  "checked": "2026-10-28"
+}

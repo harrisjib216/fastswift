@@ -1,0 +1,61 @@
+{
+  "id": "https://github.com/cpisciotta/xcbeautify",
+  "name": "xcbeautify",
+  "domain": "tooling",
+  "category": "developer-tools",
+  "baseline": "xcpretty (Ruby xcodebuild output formatter)",
+  "verdict": "downgrade",
+  "verdict_reason": "The README claimed '2x faster than xcpretty' until March 2024 without any published benchmark, then dropped the number. What remains, from the project and from fastlane's docs, is the unquantified statement that it is faster.",
+  "evidence_tier": "D",
+  "tier_reason": "The only number was an unsupported first-party claim that has since been removed; current statements are directional.",
+  "claimed_speedup": "2x faster than xcpretty (former README claim, no benchmark)",
+  "workload": "Formatting xcodebuild output piped through the formatter",
+  "metric": "time",
+  "hardware": "",
+  "os": "",
+  "toolchain": "",
+  "benchmark_date": "",
+  "benchmark_url": "https://github.com/cpisciotta/xcbeautify/blob/04b028e398efe8298c703283f9a58184926b0cf7/README.md",
+  "repo_url": "https://github.com/cpisciotta/xcbeautify",
+  "docs_url": null,
+  "license": "MIT",
+  "usability": "copyable",
+  "language": "Swift",
+  "platforms": "macOS, Linux",
+  "install": "Homebrew, Mint, or build from source",
+  "maintenance_status": "active",
+  "stars": 1553,
+  "last_commit": "2026-08-10",
+  "one_liner": "Swift replacement for xcpretty that formats xcodebuild output; claimed 2x faster, but never published a benchmark.",
+  "how_it_is_fast": "It compiles to a native static binary instead of running in a Ruby interpreter, so there is no gem loading and the line matching runs as native code. It also parses the new build system's and parallel testing output, which xcpretty handles poorly.",
+  "use_it_when": [
+    "CI pipelines that pipe xcodebuild through a formatter and want to drop the Ruby dependency",
+    "Parallel testing or SwiftPM output, which xcbeautify supports"
+  ],
+  "skip_it_when": [
+    "Expecting a measurable build speedup: the formatter runs alongside xcodebuild and is rarely the bottleneck",
+    "Workflows that depend on xcpretty's HTML report output"
+  ],
+  "caveats": [
+    "No benchmark was ever published for the 2x figure, and it was removed from the README in March 2024",
+    "fastlane recommends xcbeautify and calls it faster, but gives no numbers"
+  ],
+  "tradeoffs": [
+    "Output format and report options differ from xcpretty"
+  ],
+  "evidence": [
+    {
+      "url": "https://github.com/cpisciotta/xcbeautify/blob/04b028e398efe8298c703283f9a58184926b0cf7/README.md",
+      "quote": "- [x] 2x faster than `xcpretty`."
+    },
+    {
+      "url": "https://github.com/cpisciotta/xcbeautify",
+      "quote": "A faster alternative to `xcpretty` written in Swift."
+    },
+    {
+      "url": "https://docs.fastlane.tools/best-practices/xcodebuild-formatters/",
+      "quote": "It's faster than xcpretty"
+    }
+  ],
+  "checked": "2026-10-28"
+}

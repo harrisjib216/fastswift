@@ -1,0 +1,6 @@
+.cache/
+.staging/
+.build/
+tools/.build/
+tools/.swiftpm/
+.DS_Store

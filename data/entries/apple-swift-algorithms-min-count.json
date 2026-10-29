@@ -1,0 +1,60 @@
+{
+  "id": "https://github.com/apple/swift-algorithms#min-count",
+  "name": "swift-algorithms (min(count:), max(count:))",
+  "domain": "collections",
+  "category": "sorting-and-searching",
+  "baseline": "sorted().prefix(k) (sorting the whole collection to take the k smallest)",
+  "verdict": "confirm",
+  "verdict_reason": "The guide claims a speedup only when k is small and falls back to a full sort when k exceeds 10% of the collection, and its charts are consistent with that. The evidence is weak: the numbers exist only as chart images, collection size and machine are unstated, and the charts predate the fallback.",
+  "evidence_tier": "D",
+  "tier_reason": "Numbers exist only in two chart images; the text gives complexity and the 10% cutoff, with no timings, hardware or toolchain.",
+  "claimed_speedup": "No numbers in text. Complexity O(k log k + nk), close to O(n) for small k; falls back to sorting when k is more than 10% of the collection.",
+  "workload": "Taking the k smallest elements of an Int collection for growing k, comparing a priority queue, the shipped SmallestM approach, a quicksort-based partial sort and Stdlib sort+prefix (charts, sizes unstated).",
+  "metric": "time",
+  "hardware": "",
+  "os": "",
+  "toolchain": "",
+  "benchmark_date": "2021-04",
+  "benchmark_url": "https://github.com/apple/swift-algorithms/blob/main/Guides/MinMax.md",
+  "repo_url": "https://github.com/apple/swift-algorithms",
+  "docs_url": null,
+  "license": "Apache-2.0",
+  "usability": "copyable",
+  "language": "Swift",
+  "platforms": "All Swift platforms: iOS, macOS, tvOS, watchOS, visionOS, Linux, Windows",
+  "install": "Swift Package Manager",
+  "maintenance_status": "active",
+  "stars": 6340,
+  "last_commit": "2026-07-22",
+  "one_liner": "Apple's partial selection: the k smallest or largest elements in about O(n) for small k instead of sorting everything.",
+  "how_it_is_fast": "min(count:) keeps a sorted buffer of the best k elements seen so far and skips any element larger than the current k-th, so most elements cost one comparison. That gives O(k log k + nk), which is near-linear when k is small, instead of O(n log n) for a full sort. Above 10% of the collection it switches to a full sort.",
+  "use_it_when": [
+    "Top-N queries (top 10 scores, nearest 20 results) over large arrays",
+    "Code that calls sorted().prefix(k) or sorted().suffix(k) with k much smaller than n",
+    "Single-pass sequences, where sorting would need the whole sequence in memory anyway"
+  ],
+  "skip_it_when": [
+    "k is a large fraction of n: the function falls back to sorting anyway",
+    "You need the whole collection sorted later"
+  ],
+  "caveats": [
+    "Chart-only evidence (Guides/Resources/SortedPrefix/FewElements.png and ManyElements.png) with no stated collection size, hardware, build mode or Swift version.",
+    "The charts were made before the 10% fallback was added, so they show the shipped algorithm losing at large k.",
+    "Based on Soroush Khanlou's 2018 analysis, whose own speedup figures are theoretical or relative to his naive version, not to a full sort."
+  ],
+  "tradeoffs": [
+    "Returns a new Array of k elements; no in-place partial sort",
+    "Worst case remains O(n log n) via the fallback"
+  ],
+  "evidence": [
+    {
+      "url": "https://github.com/apple/swift-algorithms/blob/main/Guides/MinMax.md",
+      "quote": "The total complexity is `O(k log k + nk)`, which will result in a runtime close to `O(n)` if *k* is a small amount. If *k* is a large amount (more than 10% of the collection), we fall back to sorting the entire array."
+    },
+    {
+      "url": "https://github.com/apple/swift-algorithms/blob/main/Guides/MinMax.md",
+      "quote": "Here are some benchmarks we made that demonstrates how this implementation (SmallestM) behaves when *k* increases (before implementing the fallback):"
+    }
+  ],
+  "checked": "2026-10-28"
+}

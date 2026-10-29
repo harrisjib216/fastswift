@@ -1,0 +1,73 @@
+{
+  "id": "apple:foundation#iso8601formatstyle",
+  "name": "Date.ISO8601FormatStyle (Swift Foundation, ICU-free)",
+  "domain": "text-processing",
+  "category": "dates-and-numbers",
+  "baseline": "Date.ISO8601FormatStyle formatting on the earlier ICU-backed implementation",
+  "verdict": "downgrade",
+  "verdict_reason": "The rewrite is a large real gain, but the PR's own table shows 4.3x at the median, a little under its 'about 5x' headline. It covers formatting a Date to a string only, not parsing.",
+  "evidence_tier": "C",
+  "tier_reason": "First-party PR numbers from the repository's benchmark target, with no hardware, OS or toolchain stated.",
+  "claimed_speedup": "'about 5x' faster. Table median: throughput 108K to 467K formats per second (4.3x, derived from page data); total CPU 9216 ns to 2099 ns per format (4.4x, derived from page data). The internal OutputBuffer alone was worth a 25% improvement.",
+  "workload": "Format a Date with ISO8601FormatStyle (swift-foundation 'iso8601' benchmark).",
+  "metric": "throughput",
+  "hardware": "",
+  "os": "",
+  "toolchain": "",
+  "benchmark_date": "2024-01-30",
+  "benchmark_url": "https://github.com/swiftlang/swift-foundation/pull/392",
+  "repo_url": null,
+  "docs_url": "https://developer.apple.com/documentation/foundation/date/iso8601formatstyle",
+  "license": "Apple SDK",
+  "usability": "platform",
+  "language": "Swift",
+  "platforms": "Apple platforms with Swift Foundation releases after January 2024; Linux and Windows with Swift 6 toolchains",
+  "install": "built into Foundation",
+  "maintenance_status": "active",
+  "stars": null,
+  "last_commit": "",
+  "one_liner": "Swift Foundation rebuilt ISO 8601 formatting on its own Gregorian calendar, cutting ICU out and formatting about 4.3x faster.",
+  "how_it_is_fast": "Formatting now uses Swift Foundation's own Gregorian calendar code instead of calling into ICU, which also lets it live in FoundationEssentials. An internal output buffer avoids retains, releases and exclusivity checks while writing the string.",
+  "use_it_when": [
+    "Producing ISO 8601 timestamps in logs, JSON or network payloads on current OS releases and on Linux",
+    "Replacing ISO8601DateFormatter for output"
+  ],
+  "skip_it_when": [
+    "Supporting OS versions that ship the older ICU-backed Foundation, where the gain does not apply"
+  ],
+  "caveats": [
+    "No hardware or toolchain stated; benchmark sources are in the swift-foundation repository.",
+    "Formatting only; parsing performance was not measured in this PR.",
+    "The PR does not say which Apple OS release first shipped the change."
+  ],
+  "tradeoffs": [
+    "None to adopt; FormatStyle API differs from ISO8601DateFormatter options."
+  ],
+  "evidence": [
+    {
+      "url": "https://api.github.com/repos/swiftlang/swift-foundation/pulls/392",
+      "quote": "Bottom line: The new implementation is about *5x* faster than the old one, in terms of throughput."
+    },
+    {
+      "url": "https://api.github.com/repos/swiftlang/swift-foundation/pulls/392",
+      "quote": "│ Throughput (# / s) (K)    │     112 │     109 │     108 │"
+    },
+    {
+      "url": "https://api.github.com/repos/swiftlang/swift-foundation/pulls/392",
+      "quote": "│ Throughput (# / s) (K)    │     491 │     476 │     467 │"
+    },
+    {
+      "url": "https://api.github.com/repos/swiftlang/swift-foundation/pulls/392",
+      "quote": "│ Time (total CPU) (ns) *   │    8915 │    9126 │    9216 │"
+    },
+    {
+      "url": "https://api.github.com/repos/swiftlang/swift-foundation/pulls/392",
+      "quote": "│ Time (total CPU) (ns) *   │    2035 │    2084 │    2099 │"
+    },
+    {
+      "url": "https://api.github.com/repos/swiftlang/swift-foundation/pulls/392",
+      "quote": "Using this was worth a 25% improvement by avoiding retains, releases, and exclusivity checking in the formatting part of the code."
+    }
+  ],
+  "checked": "2026-10-28"
+}

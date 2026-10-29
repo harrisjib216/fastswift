@@ -1,0 +1,70 @@
+{
+  "id": "https://github.com/weichsel/zipfoundation",
+  "name": "ZIPFoundation",
+  "domain": "compression",
+  "category": "archives",
+  "baseline": "SSZipArchive (ZipArchive, minizip-based); the published test actually used macOS's zip/unzip command-line tools",
+  "verdict": "downgrade",
+  "verdict_reason": "The only published numbers compare against the macOS zip/unzip tools, not SSZipArchive, appear only in 2017 charts, and show gains mainly for extraction, where Apple's faster zlib decoder does the work. No head-to-head against SSZipArchive was found.",
+  "evidence_tier": "D",
+  "tier_reason": "First-party benchmark whose numbers exist only in chart images; the text gives only the 60% zlib decode figure attributed to Apple.",
+  "claimed_speedup": "Extraction faster than macOS unzip (chart only); the author credits Apple's libcompression with making zlib decoding 60% faster",
+  "workload": "Extract, add and remove ZIP entries of various sizes, 10 runs each, average milliseconds",
+  "metric": "time",
+  "hardware": "",
+  "os": "macOS Sierra 10.12.5",
+  "toolchain": "-Ofast with whole-module optimization",
+  "benchmark_date": "2017-07",
+  "benchmark_url": "https://thomas.zoechling.me/journal/2017/07/ZIPFoundation.html",
+  "repo_url": "https://github.com/weichsel/ZIPFoundation",
+  "docs_url": null,
+  "license": "MIT",
+  "usability": "copyable",
+  "language": "Swift",
+  "platforms": "macOS 10.11+, iOS 9+, tvOS 9+, watchOS 2+, Linux",
+  "install": "Swift Package Manager, CocoaPods, Carthage",
+  "maintenance_status": "active",
+  "stars": 2747,
+  "last_commit": "2026-09-12",
+  "one_liner": "Pure-Swift ZIP library on Apple's libcompression; its 2017 charts show faster extraction than macOS unzip, with no SSZipArchive comparison.",
+  "how_it_is_fast": "It reads and writes the ZIP container in Swift and hands Deflate decoding to Apple's Compression framework, whose zlib decoder Apple optimized. Compression goes through the same framework, which Apple did not speed up, so adding entries gains little. On Linux it falls back to stock zlib.",
+  "use_it_when": [
+    "Extracting ZIP archives on Apple platforms with a pure-Swift API",
+    "Reading or writing archives in memory without touching disk",
+    "Linux support with the same API"
+  ],
+  "skip_it_when": [
+    "Password-protected or AES-encrypted ZIPs (not supported)",
+    "Workloads dominated by creating archives, where the charts show little gain",
+    "Debug builds: the maintainer says DEBUG builds are far slower, and CRC32 in debug was about an order of magnitude slower"
+  ],
+  "caveats": [
+    "Baseline was the command-line zip/unzip tools, not SSZipArchive or marmelroy/Zip",
+    "Numbers are only in chart images from 2017 on macOS 10.12.5; hardware not stated",
+    "The 60% figure describes Apple's zlib decoder, not ZIPFoundation as a whole",
+    "Later issues report slow behaviour in DEBUG builds and when opening many archives"
+  ],
+  "tradeoffs": [
+    "No encryption support",
+    "Compression speed limited to Apple's zlib encoder (level 5 only)"
+  ],
+  "evidence": [
+    {
+      "url": "https://thomas.zoechling.me/journal/2017/07/ZIPFoundation.html",
+      "quote": "Apple somehow managed to speed-up the decoding part of zlib by 60% while still maintaining compatibility."
+    },
+    {
+      "url": "https://thomas.zoechling.me/journal/2017/07/ZIPFoundation.html",
+      "quote": "The baseline performance is established by the default zip/unzip command line tools on macOS."
+    },
+    {
+      "url": "https://thomas.zoechling.me/journal/2017/07/ZIPFoundation.html",
+      "quote": "The benchmark was executed on macOS Sierra 10.12.5."
+    },
+    {
+      "url": "https://thomas.zoechling.me/journal/2017/07/ZIPFoundation.html",
+      "quote": "ZIP entry extraction. Time in milliseconds. Lower is better."
+    }
+  ],
+  "checked": "2026-10-28"
+}

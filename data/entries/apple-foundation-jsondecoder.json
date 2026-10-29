@@ -1,0 +1,66 @@
+{
+  "id": "apple:foundation#jsondecoder",
+  "name": "Foundation JSONDecoder / JSONEncoder (swift-foundation rewrite)",
+  "domain": "data-formats",
+  "category": "json",
+  "baseline": "Foundation JSONDecoder before macOS 14 / iOS 17 (Swift wrapper over NSJSONSerialization)",
+  "verdict": "confirm",
+  "verdict_reason": "Apple reported 200% to almost 500% decode-time improvements on standard JSON benchmark files. Libraries built to beat the old decoder now say the new one matches or beats them (ZippyJSON, IkigaJSON), which fits a step of that size.",
+  "evidence_tier": "C",
+  "tier_reason": "First-party figure with no hardware, OS build or per-file numbers; only the test data (the Boost.JSON benchmark files) is identified.",
+  "claimed_speedup": "Decode time improved by 200% to almost 500% on JSON benchmark test data",
+  "workload": "Decoding the JSON files from the Boost.JSON benchmark suite into Codable types",
+  "metric": "time",
+  "hardware": "",
+  "os": "",
+  "toolchain": "",
+  "benchmark_date": "2023-04-26",
+  "benchmark_url": "https://www.swift.org/blog/foundation-preview-now-available/",
+  "repo_url": null,
+  "docs_url": "https://developer.apple.com/documentation/foundation/jsondecoder",
+  "license": "Apple SDK",
+  "usability": "platform",
+  "language": "Swift",
+  "platforms": "macOS 14+, iOS 17+ and the matching 2023 OS releases; Linux and Windows through the Swift 6 toolchain's swift-foundation",
+  "install": "built into macOS 14+ / iOS 17+",
+  "maintenance_status": "active",
+  "stars": null,
+  "last_commit": "",
+  "one_liner": "Apple's 2023 Swift rewrite of JSONDecoder/JSONEncoder; 2x-5x faster decoding than the NSJSONSerialization-based version it replaced.",
+  "how_it_is_fast": "The new decoder parses JSON in Swift straight into the structure Codable reads from, instead of first building NSDictionary, NSArray and NSNumber objects through NSJSONSerialization and bridging them back to Swift. Removing that Objective-C round trip removes most of the per-value allocation and bridging cost.",
+  "use_it_when": [
+    "Default choice on iOS 17+ / macOS 14+ before adding a third-party decoder",
+    "Re-measure third-party decoders adopted for older OS versions after raising the deployment target"
+  ],
+  "skip_it_when": [
+    "Apps running on iOS 16 and earlier still get the old decoder",
+    "Throughput-critical paths: yyjson-based libraries and Apple's experimental NewCodable report further multiples"
+  ],
+  "caveats": [
+    "No per-file numbers, hardware or OS build; '200%' is ambiguous between 2x and 3x faster.",
+    "The post (April 2023) describes the swift-foundation preview package; the OS release came with macOS 14 / iOS 17.",
+    "Very large apps can still lose decode time to protocol-conformance checks inside JSONDecoder; swift-foundation PR #1481 (merged 2025-09-30) removed the main one for the default key strategy."
+  ],
+  "tradeoffs": [
+    "Only on the 2023 and later OS releases; older deployment targets keep the old implementation"
+  ],
+  "evidence": [
+    {
+      "url": "https://www.swift.org/blog/foundation-preview-now-available/",
+      "quote": "eliminating costly roundtrips to and from the Objective-C collection types"
+    },
+    {
+      "url": "https://www.swift.org/blog/foundation-preview-now-available/",
+      "quote": "there are improvements in decode time from 200% to almost 500%."
+    },
+    {
+      "url": "https://github.com/michaeleisel/ZippyJSON/blob/master/README.md",
+      "quote": "JSONDecoder is faster than ZippyJSON for iOS 17+."
+    },
+    {
+      "url": "https://github.com/orlandos-nl/swift-json/blob/master/README.md",
+      "quote": "IkigaJSON is competitive to the modern Foundation JSON in benchmarks, and outperforms older versions of Foundation JSON by a large margin."
+    }
+  ],
+  "checked": "2026-10-28"
+}

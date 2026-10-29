@@ -1,0 +1,94 @@
+{
+  "id": "https://github.com/ggml-org/llama.cpp",
+  "name": "llama.cpp (Metal backend on Apple silicon)",
+  "domain": "ml-and-numerics",
+  "category": "on-device-inference",
+  "baseline": "Core ML LLM conversions running on the Neural Engine (CoreML-LLM)",
+  "verdict": "downgrade",
+  "verdict_reason": "llama.cpp out-decodes the Core ML Neural Engine path in the one same-table comparison, but those cells are Debug builds. In release-build cells of the same harness it trails MLX Swift on every row, at roughly half MLX's speed on hybrid Mamba-2 models, and it used the most energy per token on the phone.",
+  "evidence_tier": "A",
+  "tier_reason": "Third-party harness with public code; llama.cpp build number and commit, devices and quantization are stated.",
+  "claimed_speedup": "iPhone 17 Pro, Qwen 3.5 2B: 39.1 vs 27.9 tok/s over Core ML/ANE (Debug builds); slower than MLX Swift elsewhere: 38.8 vs 49.1 tok/s (Gemma 4 E2B, iPhone 17 Pro), 127.1 vs 177.8 tok/s (Gemma 4 E2B, M4 Max), 86.2 vs 159.7 tok/s (Nemotron-3 Nano 30B-A3B, M4 Max); 0.483 J/tok on iPhone, the highest of all runtimes",
+  "workload": "Batch-1 greedy decoding of Q4_K_M GGUF models: 128-token short-chat on iPhone, llama-bench tg256 after a pp512 prompt for the hybrid models on M4 Max, 600-second sustained run for energy.",
+  "metric": "throughput (decode tokens/s)",
+  "hardware": "iPhone 17 Pro (A19 Pro); Apple M4 Max",
+  "os": "iOS 26.4.2 (Qwen 3.5 2B cells); iOS 27 beta; macOS 27 beta",
+  "toolchain": "llama.cpp Homebrew build 8680 (commit 15f786e65) for the M4 Max hybrid runs",
+  "benchmark_date": "2026-09-04",
+  "benchmark_url": "https://github.com/john-rocky/apple-silicon-llm-bench/blob/bd5feaf9fb1a5539046bb30789223d628d39d622/README.md",
+  "repo_url": "https://github.com/ggml-org/llama.cpp",
+  "docs_url": null,
+  "license": "MIT",
+  "usability": "copyable",
+  "language": "C++",
+  "platforms": "macOS, iOS, Linux, Windows, Android",
+  "install": "Homebrew, CMake source build, XCFramework for Apple apps",
+  "maintenance_status": "active",
+  "stars": 132667,
+  "last_commit": "2026-10-28",
+  "one_liner": "C/C++ LLM runtime with a Metal backend; beats Core ML's Neural Engine path on burst decode but trails MLX Swift on Apple silicon.",
+  "how_it_is_fast": "llama.cpp runs GGUF models through hand-written Metal kernels for quantized matrix-vector products, with k-quant formats such as Q4_K_M that cut memory traffic per token. Weights are memory-mapped, so loading is fast and clean pages are not charged to the app's footprint.",
+  "use_it_when": [
+    "You need one runtime across Apple platforms, Linux, Windows and Android",
+    "The model only exists as a GGUF file",
+    "Low charged memory footprint matters more than tokens per second (weights are mmap'd)"
+  ],
+  "skip_it_when": [
+    "Peak decode speed on Apple silicon: MLX Swift was faster on every row of the same harness",
+    "Battery-sensitive iPhone apps: it drew the most energy per token and kept the least of its burst rate under sustained load",
+    "Google's official Gemma 4 QAT GGUF, which failed to load in this harness"
+  ],
+  "caveats": [
+    "The only direct Core ML comparison uses Debug-build captures, which the harness's own rules flag",
+    "Quantization differs between columns (Q4_K_M vs MLX 4-bit affine)",
+    "llama.cpp's own Apple silicon table (discussion #4167) gives absolute llama-bench numbers per chip with no Core ML or MLX baseline",
+    "iOS 27 and macOS 27 betas for the newer cells"
+  ],
+  "tradeoffs": [
+    "Mmap'd weights hide about 2.9 GB of resident memory behind a 191 MB charged footprint on iPhone",
+    "C API; Swift apps need a wrapper or the XCFramework"
+  ],
+  "evidence": [
+    {
+      "url": "https://github.com/john-rocky/apple-silicon-llm-bench/blob/bd5feaf9fb1a5539046bb30789223d628d39d622/README.md",
+      "quote": "### Qwen 3.5 2B (pre-refresh cells — Debug builds, iOS 26.4.2, 2026-05-28)"
+    },
+    {
+      "url": "https://github.com/john-rocky/apple-silicon-llm-bench/blob/bd5feaf9fb1a5539046bb30789223d628d39d622/README.md",
+      "quote": "| 🔵 llama.cpp | 39.1 | 1,479 |"
+    },
+    {
+      "url": "https://github.com/john-rocky/apple-silicon-llm-bench/blob/bd5feaf9fb1a5539046bb30789223d628d39d622/README.md",
+      "quote": "| 🟠 CoreML/ANE | 27.9 | **241** 🏆 |"
+    },
+    {
+      "url": "https://github.com/john-rocky/apple-silicon-llm-bench/blob/bd5feaf9fb1a5539046bb30789223d628d39d622/README.md",
+      "quote": "| 🔵 llama.cpp | Q4_K_M (PTQ) | 38.8 (7/27, n=10) | 24.4 ms (7/27) | 191 † | 76.0% | 0.260 ◊ |"
+    },
+    {
+      "url": "https://github.com/john-rocky/apple-silicon-llm-bench/blob/bd5feaf9fb1a5539046bb30789223d628d39d622/README.md",
+      "quote": "| 🟣 MLX-Swift | PTQ 4-bit | 49.1 (A2 7/28, n=6) | 20.5 ms | 3,010 | 84.0% | 0.182 ◊ |"
+    },
+    {
+      "url": "https://github.com/john-rocky/apple-silicon-llm-bench/blob/bd5feaf9fb1a5539046bb30789223d628d39d622/README.md",
+      "quote": "| 🟣 MLX PTQ 4-bit | **0.090** 🏆 | 14.6 | **177.8** 🏆 |"
+    },
+    {
+      "url": "https://github.com/john-rocky/apple-silicon-llm-bench/blob/bd5feaf9fb1a5539046bb30789223d628d39d622/README.md",
+      "quote": "| 🔵 llama.cpp Q4_K_M | 0.170 | 20.5 | 127.1 |"
+    },
+    {
+      "url": "https://github.com/john-rocky/apple-silicon-llm-bench/blob/bd5feaf9fb1a5539046bb30789223d628d39d622/README.md",
+      "quote": "| NVIDIA Nemotron-3 Nano 30B-A3B | Apple M4 Max | 159.7 | 86.2 | 2026-09-04 |"
+    },
+    {
+      "url": "https://github.com/john-rocky/apple-silicon-llm-bench/blob/bd5feaf9fb1a5539046bb30789223d628d39d622/README.md",
+      "quote": "NVIDIA Nemotron-3 Nano 30B-A3B · llama.cpp: unsloth/Nemotron-3-Nano-30B-A3B-GGUF Q4_K_M (Homebrew build 8680, commit 15f786e65; tg256 mean of 3 (±0.47))"
+    },
+    {
+      "url": "https://github.com/john-rocky/apple-silicon-llm-bench/blob/bd5feaf9fb1a5539046bb30789223d628d39d622/README.md",
+      "quote": "**llama.cpp is the energy floor at 0.483 J/tok**"
+    }
+  ],
+  "checked": "2026-10-28"
+}

@@ -1,0 +1,81 @@
+{
+  "id": "https://github.com/hummingbird-project/hummingbird#v2",
+  "name": "Hummingbird 2 (HTTP server framework)",
+  "domain": "server-and-networking",
+  "category": "web-frameworks",
+  "baseline": "Vapor 4 (TechEmpower \"vapor\" implementation, same Swift toolchain and build flags)",
+  "verdict": "reject",
+  "verdict_reason": "Hummingbird's reputation as the faster Swift framework comes from the 1.x rows. In Round 23, the only official round with Hummingbird 2, it was slower than Vapor on both plaintext and JSON, and its Postgres implementation failed to start, so there is no database result either.",
+  "evidence_tier": "A",
+  "tier_reason": "TechEmpower runs the tests itself on stated hardware and publishes every implementation's source and Dockerfile, including the Swift version and build flags.",
+  "claimed_speedup": "No speedup measured. TechEmpower Round 23: plaintext 244,953 vs Vapor 310,442 req/s (0.79x), JSON 146,978 vs Vapor 263,364 req/s (0.56x). (derived from page data: peak totalRequests per 15-second run, plaintext 3674293 vs 4656628, JSON 2204663 vs 3950461)",
+  "workload": "TechEmpower Framework Benchmarks plaintext test (pipelined \"Hello, World!\" responses at 256 to 16,384 connections) and JSON test (one small JSON object serialized per request at 16 to 512 connections); peak requests per second across concurrency levels, 15-second runs.",
+  "metric": "throughput",
+  "hardware": "Three HPE ProLiant DL360 Gen10 Plus servers, Intel Xeon Gold 6330 (56 cores), 64 GB, 40 Gbps Ethernet",
+  "os": "Linux, in Docker (official swift slim images)",
+  "toolchain": "Swift 5.10, swift build -c release -Xswiftc -enforce-exclusivity=unchecked; Package.swift asks for hummingbird from 2.0.0-beta",
+  "benchmark_date": "2025-02-24",
+  "benchmark_url": "https://www.techempower.com/benchmarks/#section=data-r23&hw=ph&test=json",
+  "repo_url": "https://github.com/hummingbird-project/hummingbird",
+  "docs_url": null,
+  "license": "Apache-2.0",
+  "usability": "copyable",
+  "language": "Swift",
+  "platforms": "macOS 11+, iOS 15+, tvOS 15+, visionOS 1+, Linux",
+  "install": "Swift Package Manager",
+  "maintenance_status": "active",
+  "stars": 1900,
+  "last_commit": "2026-10-28",
+  "one_liner": "Hummingbird 2, the async/await rewrite, which TechEmpower Round 23 measured as slower than Vapor on plaintext and JSON.",
+  "how_it_is_fast": "It is not faster in the published data. Hummingbird 2 runs handlers as Swift concurrency tasks, which adds hops between the NIO EventLoop and the cooperative thread pool; the maintainer said in October 2024 that custom task executors, the planned fix, still had performance issues.",
+  "use_it_when": [
+    "You want a small, modular async/await server framework and Vapor-level throughput is enough."
+  ],
+  "skip_it_when": [
+    "Choosing Hummingbird over Vapor for raw throughput: the only independent numbers show the opposite."
+  ],
+  "caveats": [
+    "TechEmpower endpoints are deliberately trivial, so these numbers measure framework and driver overhead, not the throughput of a real application.",
+    "Requests per second are computed from totalRequests divided by the 15-second duration in TechEmpower's raw results file; the interactive results page draws the same values as charts rendered by JavaScript.",
+    "The TechEmpower FrameworkBenchmarks repository was archived in March 2026, so Round 23 (published 2025-02-24) is the last official round. No Swift 6.x results exist.",
+    "Round 23 ran from 2025-01-30 with Swift 5.10. Hummingbird 2 has had many releases since (2.25 in 2026), some listing performance work, and no newer independent numbers exist, so the gap may have changed.",
+    "The hummingbird2-postgres implementation failed to start in Round 23 (\"ERROR: Problem starting hummingbird2-postgres\" in the raw results), so database tests have no Hummingbird 2 data.",
+    "Built with -enforce-exclusivity=unchecked, which ordinary release builds do not use."
+  ],
+  "tradeoffs": [],
+  "evidence": [
+    {
+      "url": "https://www.techempower.com/benchmarks/results/round23/ph.json",
+      "quote": "\"hummingbird2\": [ { \"latencyAvg\": \"8.71ms\", \"latencyStdev\": \"5.76ms\", \"latencyMax\": \"142.18ms\", \"totalRequests\": 3674293"
+    },
+    {
+      "url": "https://www.techempower.com/benchmarks/results/round23/ph.json",
+      "quote": "\"vapor\": [ { \"latencyAvg\": \"7.03ms\", \"latencyStdev\": \"4.21ms\", \"latencyMax\": \"38.88ms\", \"totalRequests\": 4656628"
+    },
+    {
+      "url": "https://www.techempower.com/benchmarks/results/round23/ph.json",
+      "quote": "\"hummingbird2\": [ { \"latencyAvg\": \"1.07ms\", \"latencyStdev\": \"242.29us\", \"latencyMax\": \"2.28ms\", \"totalRequests\": 222774, \"startTime\": 1738604892, \"endTime\": 1738604907 }, { \"latencyAvg\": \"511.60us\", \"latencyStdev\": \"192.55us\", \"latencyMax\": \"2.74ms\", \"totalRequests\": 934337, \"startTime\": 1738604909, \"endTime\": 1738604924 }, { \"latencyAvg\": \"433.35us\", \"latencyStdev\": \"128.31us\", \"latencyMax\": \"4.71ms\", \"totalRequests\": 1930409, \"startTime\": 1738604926, \"endTime\": 1738604941 }, { \"latencyAvg\": \"796.77us\", \"latencyStdev\": \"384.80us\", \"latencyMax\": \"21.30ms\", \"totalRequests\": 2119169, \"startTime\": 1738604943, \"endTime\": 1738604958 }, { \"latencyAvg\": \"1.73ms\", \"latencyStdev\": \"1.66ms\", \"latencyMax\": \"66.11ms\", \"totalRequests\": 2186326, \"startTime\": 1738604960, \"endTime\": 1738604976 }, { \"latencyAvg\": \"4.43ms\", \"latencyStdev\": \"12.14ms\", \"latencyMax\": \"335.96ms\", \"totalRequests\": 2204663"
+    },
+    {
+      "url": "https://www.techempower.com/benchmarks/results/round23/ph.json",
+      "quote": "\"vapor\": [ { \"latencyAvg\": \"1.22ms\", \"latencyStdev\": \"255.89us\", \"latencyMax\": \"2.44ms\", \"totalRequests\": 195267, \"startTime\": 1738301493, \"endTime\": 1738301508 }, { \"latencyAvg\": \"1.11ms\", \"latencyStdev\": \"266.00us\", \"latencyMax\": \"2.52ms\", \"totalRequests\": 429415, \"startTime\": 1738301510, \"endTime\": 1738301525 }, { \"latencyAvg\": \"415.53us\", \"latencyStdev\": \"121.91us\", \"latencyMax\": \"2.67ms\", \"totalRequests\": 2007714, \"startTime\": 1738301527, \"endTime\": 1738301542 }, { \"latencyAvg\": \"523.03us\", \"latencyStdev\": \"173.84us\", \"latencyMax\": \"5.70ms\", \"totalRequests\": 3176422, \"startTime\": 1738301544, \"endTime\": 1738301560 }, { \"latencyAvg\": \"0.95ms\", \"latencyStdev\": \"529.32us\", \"latencyMax\": \"10.02ms\", \"totalRequests\": 3648504, \"startTime\": 1738301562, \"endTime\": 1738301577 }, { \"latencyAvg\": \"1.98ms\", \"latencyStdev\": \"1.06ms\", \"latencyMax\": \"22.95ms\", \"totalRequests\": 3950461"
+    },
+    {
+      "url": "https://github.com/TechEmpower/FrameworkBenchmarks/issues/9589",
+      "quote": "Round 23 results are in: https://tfb-status.techempower.com/results/91a66052-9d86-446c-b31a-eadbd669ed08"
+    },
+    {
+      "url": "https://www.techempower.com/benchmarks/results/round23/ph.json",
+      "quote": "\"uuid\": \"91a66052-9d86-446c-b31a-eadbd669ed08\", \"name\": \"Continuous Benchmarking Run 2025-01-30 18:47:41\""
+    },
+    {
+      "url": "https://www.techempower.com/benchmarks/results/round23/ph.json",
+      "quote": "\"duration\": 15, \"rawData\": {"
+    },
+    {
+      "url": "https://forums.swift.org/t/hummingbird-2/74535",
+      "quote": "Currently performance is not up to what we hoped for Hummingbird 2 we are waiting on some changes in Swift before we improve that. With Hummingbird 1 we were able to keep request processing to a single EventLoop, as we have moved to Swift concurrency the ability to do this has been complicated."
+    }
+  ],
+  "checked": "2026-10-28"
+}

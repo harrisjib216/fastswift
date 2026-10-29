@@ -1,0 +1,80 @@
+{
+  "id": "https://github.com/pointfreeco/swift-parsing#date-parser",
+  "name": "swift-parsing (RFC 3339 date parser benchmark)",
+  "domain": "text-processing",
+  "category": "dates-and-numbers",
+  "baseline": "Foundation DateFormatter and ISO8601DateFormatter (cached instances, pre-2023 Foundation)",
+  "verdict": "downgrade",
+  "verdict_reason": "The benchmark parser beats cached DateFormatter by 6.7x and ISO8601DateFormatter by 8.3x, but the formatter rows date from March 2023, before the Swift Foundation rewrite shipped. The parser row was re-run separately in July 2023, and the comparison leaves out Date.ISO8601FormatStyle, today's default.",
+  "evidence_tier": "A",
+  "tier_reason": "Public benchmark source and release-mode command in the repository, hardware stated in the README; OS and Swift version not stated.",
+  "claimed_speedup": "Date.Parser 3500 ns vs DateFormatter 23542 ns (6.7x, derived from page data) and ISO8601DateFormatter 29041 ns (8.3x, derived from page data), M1 Pro.",
+  "workload": "Parse one RFC 3339 timestamp '1979-05-27T00:32:00Z' into a Date, formatters created once outside the timed block.",
+  "metric": "time",
+  "hardware": "MacBook Pro (16-inch, 2021), Apple M1 Pro",
+  "os": "",
+  "toolchain": "swift run -c release (Makefile); Swift version not stated",
+  "benchmark_date": "2023-07",
+  "benchmark_url": "https://github.com/pointfreeco/swift-parsing#benchmarks",
+  "repo_url": "https://github.com/pointfreeco/swift-parsing",
+  "docs_url": null,
+  "license": "MIT",
+  "usability": "copyable",
+  "language": "Swift",
+  "platforms": "iOS 13+, macOS 10.15+, tvOS 13+, watchOS 6+, Linux",
+  "install": "Swift Package Manager",
+  "maintenance_status": "active",
+  "stars": 1000,
+  "last_commit": "2026-09-02",
+  "one_liner": "Example RFC 3339 parser built with swift-parsing that ran 6.7x faster than a cached DateFormatter in a 2023 benchmark.",
+  "how_it_is_fast": "The parser reads digits straight from UTF-8 bytes, validates ranges, and builds the Date with timegm, skipping locale, calendar and pattern handling that DateFormatter performs through ICU.",
+  "use_it_when": [
+    "Bulk parsing of strict RFC 3339 timestamps where formatter cost shows up in profiles",
+    "Needing sub-millisecond precision, which the benchmark notes the formatters do not parse"
+  ],
+  "skip_it_when": [
+    "Localized or user-facing date strings",
+    "Before comparing against Date.ISO8601FormatStyle on your target OS"
+  ],
+  "caveats": [
+    "Formatter rows were last updated in March 2023 and the parser row in July 2023: not one run.",
+    "Predates the Swift Foundation rewrite in macOS 14 / iOS 17 and later releases; OS not stated.",
+    "Date.ISO8601FormatStyle is not benchmarked.",
+    "The parser lives in the benchmark target, not in the library's public API; you copy the example."
+  ],
+  "tradeoffs": [
+    "Handles one strict format only; no locale or calendar support.",
+    "timegm-based conversion assumes the Gregorian calendar."
+  ],
+  "evidence": [
+    {
+      "url": "https://github.com/pointfreeco/swift-parsing/blob/main/README.md",
+      "quote": "Date.Parser                                      3500.000 ns ±   5.65 %     238924"
+    },
+    {
+      "url": "https://github.com/pointfreeco/swift-parsing/blob/main/README.md",
+      "quote": "Date.DateFormatter                              23542.000 ns ±   5.50 %      58766"
+    },
+    {
+      "url": "https://github.com/pointfreeco/swift-parsing/blob/main/README.md",
+      "quote": "Date.ISO8601DateFormatter                       29041.000 ns ±   3.31 %      48028"
+    },
+    {
+      "url": "https://github.com/pointfreeco/swift-parsing/blob/main/README.md",
+      "quote": "Apple M1 Pro (10 cores, 8 performance and 2 efficiency)"
+    },
+    {
+      "url": "https://github.com/pointfreeco/swift-parsing/blob/main/Sources/swift-parsing-benchmark/Date.swift",
+      "quote": "Not only is the parser faster than both formatters, it is more flexible and accurate: it will"
+    },
+    {
+      "url": "https://github.com/pointfreeco/swift-parsing/blob/main/Sources/swift-parsing-benchmark/Date.swift",
+      "quote": "let input = \"1979-05-27T00:32:00Z\""
+    },
+    {
+      "url": "https://github.com/pointfreeco/swift-parsing/blob/main/Makefile",
+      "quote": "swift run -c release swift-parsing-benchmark"
+    }
+  ],
+  "checked": "2026-10-28"
+}

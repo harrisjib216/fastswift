@@ -1,0 +1,64 @@
+{
+  "id": "https://github.com/ibireme/yycache",
+  "name": "YYCache (YYMemoryCache, YYDiskCache)",
+  "domain": "storage",
+  "category": "caches-and-key-value",
+  "baseline": "NSCache, PINCache, and one-file-per-value disk caches",
+  "verdict": "downgrade",
+  "verdict_reason": "The 2015 iPhone 6 charts show YYMemoryCache ahead of NSCache and PINMemoryCache, and YYDiskCache far ahead of file-based caches for small values. But the numbers are chart-only, the memory cache was measured while it used OSSpinLock (the current code uses pthread_mutex), and the project has had no commits since 2017.",
+  "evidence_tier": "D",
+  "tier_reason": "First-party results only in chart images; the blog text is directional.",
+  "claimed_speedup": "Directional only: NSCache 的写入性能稍差，读取性能不错 (NSCache writes are somewhat slower, reads are good); for small values (NSNumber) YYDiskCache 的性能远远高出基于文件存储的库 (far faster than file-based caches); measured on an iPhone 6.",
+  "workload": "Single-threaded set, get and miss throughput for memory caches; reads and writes of small (NSNumber) and larger values for disk caches.",
+  "metric": "throughput (queries per second)",
+  "hardware": "iPhone 6 (64 GB)",
+  "os": "",
+  "toolchain": "",
+  "benchmark_date": "2015-10-26",
+  "benchmark_url": "https://blog.ibireme.com/2015/10/26/yycache/",
+  "repo_url": "https://github.com/ibireme/YYCache",
+  "docs_url": null,
+  "license": "MIT",
+  "usability": "copyable",
+  "language": "Objective-C",
+  "platforms": "iOS 6+",
+  "install": "CocoaPods, Carthage",
+  "maintenance_status": "abandoned",
+  "stars": 2391,
+  "last_commit": "2017-08-06",
+  "one_liner": "Objective-C memory and SQLite-backed disk cache; 2015 charts show it ahead of NSCache and file caches, numbers chart-only.",
+  "how_it_is_fast": "YYMemoryCache is an LRU cache built from a doubly linked list and a CFDictionary, accessed synchronously under one lock instead of through dispatch queues and async callbacks as in TMCache and PINCache. YYDiskCache keeps small values inline in SQLite and larger ones as files with their metadata in SQLite, so small reads and writes avoid per-file system calls.",
+  "use_it_when": [
+    "Maintaining existing Objective-C code that already uses it",
+    "Disk caches holding many small values, where the SQLite-backed store had its largest lead"
+  ],
+  "skip_it_when": [
+    "New Swift code: unmaintained since 2017 and Objective-C only",
+    "Large values: the author reports file-based and SQLite-based storage converge for larger data"
+  ],
+  "caveats": [
+    "Numbers exist only in chart images; read from the memory chart, YYMemoryCache's set rate is roughly twice NSCache's",
+    "2015 measurements on an iPhone 6 with the NSCache of that iOS era",
+    "The measured YYMemoryCache used OSSpinLock, which Apple deprecated in iOS 10 because of priority inversion; the current code uses pthread_mutex and has not been re-measured",
+    "In the same chart NSDictionary guarded by a lock beats every cache, YYMemoryCache included"
+  ],
+  "tradeoffs": [
+    "Objective-C API, CocoaPods or Carthage only",
+    "Unmaintained: no fixes for current iOS releases"
+  ],
+  "evidence": [
+    {
+      "url": "https://blog.ibireme.com/2015/10/26/yycache/",
+      "quote": "NSCache 的写入性能稍差，读取性能不错；"
+    },
+    {
+      "url": "https://blog.ibireme.com/2015/10/26/yycache/",
+      "quote": "我的 YYDiskCache 也是采用的 SQLite 配合文件的存储方式，在 iPhone 6"
+    },
+    {
+      "url": "https://blog.ibireme.com/2015/10/26/yycache/",
+      "quote": "在存取小数据 (NSNumber) 时，YYDiskCache 的性能远远高出基于文件存储的库；而较大数据的存取性能则比较接近了。"
+    }
+  ],
+  "checked": "2026-10-28"
+}

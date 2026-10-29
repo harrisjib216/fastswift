@@ -1,0 +1,82 @@
+{
+  "id": "https://github.com/lemire/swiftwyhash",
+  "name": "SwiftWyhash (WyRand)",
+  "domain": "crypto-and-hashing",
+  "category": "random-numbers",
+  "baseline": "SystemRandomNumberGenerator via Double.random(in:)",
+  "verdict": "confirm",
+  "verdict_reason": "On an M4 Mac with -Ounchecked, filling a 100-million-element Double array with a wyrand generator took 65-81 ms against 3,318 ms with Double.random(in:), which uses the system generator. The algorithm is the one Lemire ported; the measured port uses newer upstream constants but the same operations.",
+  "evidence_tier": "B",
+  "tier_reason": "Independent forum benchmark (hyperfine, M4, -Ounchecked, code posted in the thread), but it measures an updated port rather than this package as published.",
+  "claimed_speedup": "About 50x faster than the default Swift random (65 ms vs 3318 ms for 100,000,000 Doubles; 81 ms when still going through Double.random(in:using:)), 42x in an earlier run; a second poster saw ~12x from swapping in a Mersenne Twister",
+  "workload": "Fill a [Double] of 100,000,000 elements with uniform values in [0, 1); wyrand either fed through Double.random(in:using:) or converted directly by dividing by 2^64",
+  "metric": "time",
+  "hardware": "Apple M4 Mac",
+  "os": "",
+  "toolchain": "swiftc -Ounchecked; timed with hyperfine",
+  "benchmark_date": "2025-05",
+  "benchmark_url": "https://forums.swift.org/t/creating-an-array-of-random-numbers-in-swift-is-slow/80022?page=2",
+  "repo_url": "https://github.com/lemire/SwiftWyhash",
+  "docs_url": null,
+  "license": "Apache-2.0",
+  "usability": "copyable",
+  "language": "Swift",
+  "platforms": "Any platform with 64-bit Swift (uses multipliedFullWidth)",
+  "install": "Swift Package Manager",
+  "maintenance_status": "stale",
+  "stars": 25,
+  "last_commit": "2025-05-26",
+  "one_liner": "Pure-Swift wyrand generator; about 50x faster than Double.random(in:) with the system generator for bulk random arrays.",
+  "how_it_is_fast": "Each value costs one 64-bit add, one 64x64-to-128-bit multiply and an XOR on a single UInt64 of state, with no locks and no system calls. SystemRandomNumberGenerator goes to arc4random_buf on Apple platforms and getrandom on Linux for every value, which adds locking and cryptographic mixing. The generator is a small struct that the compiler can inline into the fill loop.",
+  "use_it_when": [
+    "Filling large arrays with random values for simulation, Monte Carlo or test data",
+    "Shuffling or sampling at high volume where predictability to an attacker does not matter",
+    "You want a seedable, reproducible stream"
+  ],
+  "skip_it_when": [
+    "Security-sensitive randomness (keys, tokens, nonces): wyrand is not cryptographically secure",
+    "Code that draws only a few values"
+  ],
+  "caveats": [
+    "The benchmarked WyRand is a forum poster's update of this package with newer upstream constants, not the package byte for byte",
+    "Part of the 50x comes from avoiding Double.random(in:) itself; through Double.random(in:using:) the gap was 41x (derived)",
+    "Single machine, single poster; Swift version not stated",
+    "Lemire's own follow-up post notes wyhash-style generators lose some of their edge on older ARM cores where the high half of a 64-bit multiply is slow; the M4 result suggests this does not apply to Apple silicon"
+  ],
+  "tradeoffs": [
+    "Not cryptographically secure; only 64 bits of state",
+    "The package lags upstream wyhash by several years, as noted in the thread",
+    "Small project (25 stars), no commits since May 2025"
+  ],
+  "evidence": [
+    {
+      "url": "https://forums.swift.org/t/creating-an-array-of-random-numbers-in-swift-is-slow/80022?page=2",
+      "quote": "The wyrand method was about 50x faster than the default Swift random."
+    },
+    {
+      "url": "https://forums.swift.org/t/creating-an-array-of-random-numbers-in-swift-is-slow/80022?page=2",
+      "quote": "Swift random rand.swift 3318 50.5x"
+    },
+    {
+      "url": "https://forums.swift.org/t/creating-an-array-of-random-numbers-in-swift-is-slow/80022?page=2",
+      "quote": "WyRand random wyrand.swift 81 1.2x"
+    },
+    {
+      "url": "https://forums.swift.org/t/creating-an-array-of-random-numbers-in-swift-is-slow/80022?page=2",
+      "quote": "WyRand uniform wyuniform.swift 65"
+    },
+    {
+      "url": "https://forums.swift.org/t/creating-an-array-of-random-numbers-in-swift-is-slow/80022?page=2",
+      "quote": "grants me a ~12x speed increase in throughput"
+    },
+    {
+      "url": "https://forums.swift.org/t/creating-an-array-of-random-numbers-in-swift-is-slow/80022",
+      "quote": "42x faster than"
+    },
+    {
+      "url": "https://forums.swift.org/t/creating-an-array-of-random-numbers-in-swift-is-slow/80022",
+      "quote": "when filling a Double array of 100,000,000 elements. This was measured on an M4 Mac, compiling with -Ounchecked, and using hyperfine for the benchmark."
+    }
+  ],
+  "checked": "2026-10-28"
+}

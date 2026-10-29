@@ -1,0 +1,60 @@
+{
+  "id": "https://github.com/saagarjha/chronicle",
+  "name": "Chronicle",
+  "domain": "concurrency-and-runtime",
+  "category": "logging",
+  "baseline": "os_log / os.Logger, NSLog and print",
+  "verdict": "downgrade",
+  "verdict_reason": "The README claims a few dozen nanoseconds per message but publishes no benchmark, no baseline numbers and no hardware. The author also says the library is an experiment that is not complete or ready for use.",
+  "evidence_tier": "C",
+  "tier_reason": "First-party per-message figure with no harness, hardware or comparison numbers.",
+  "claimed_speedup": "'just a few dozen nanoseconds per message' (no baseline measured)",
+  "workload": "Not stated",
+  "metric": "latency",
+  "hardware": "",
+  "os": "",
+  "toolchain": "",
+  "benchmark_date": "",
+  "benchmark_url": "https://github.com/saagarjha/Chronicle",
+  "repo_url": "https://github.com/saagarjha/Chronicle",
+  "docs_url": null,
+  "license": null,
+  "usability": "reference",
+  "language": "Swift",
+  "platforms": "Apple platforms (reads __TEXT,__cstring from loaded images)",
+  "install": "Swift Package Manager",
+  "maintenance_status": "active",
+  "stars": 118,
+  "last_commit": "2026-01-01",
+  "one_liner": "Experimental in-process structured logger claiming a few dozen nanoseconds per message; no published comparison with os_log or print.",
+  "how_it_is_fast": "A #log macro and inlining turn each call into direct writes into a memory-mapped ring buffer, with no system call or XPC per message. Constant strings are recorded as offsets into the binary rather than copied, and only typed arguments plus a timestamp and logger ID are written. Formatting happens later, when the log is read.",
+  "use_it_when": [
+    "Studying how to build a low-overhead, crash-durable in-process log",
+    "Very high message rates where os_log might drop messages, if you accept experimental code"
+  ],
+  "skip_it_when": [
+    "Production apps: the author says it is not complete or ready for use",
+    "You need Console.app, Instruments or sysdiagnose integration",
+    "You need a license to ship it: the repository has none"
+  ],
+  "caveats": [
+    "No benchmark code or numbers in the repository text beyond the one README figure",
+    "No license file, so the code is study-only"
+  ],
+  "tradeoffs": [
+    "Logs live in your own file; no system-wide collection or Apple tooling",
+    "Only simple integer, floating-point, Bool and String arguments can be logged",
+    "Swift only"
+  ],
+  "evidence": [
+    {
+      "url": "https://github.com/saagarjha/Chronicle",
+      "quote": "With logging this cheap (just a few dozen nanoseconds per message!) there's no reason to turn it off."
+    },
+    {
+      "url": "https://github.com/saagarjha/Chronicle",
+      "quote": "Complete or ready for use. See below."
+    }
+  ],
+  "checked": "2026-10-28"
+}

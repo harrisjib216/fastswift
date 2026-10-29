@@ -1,0 +1,77 @@
+{
+  "id": "https://github.com/argmaxinc/argmax-oss-swift",
+  "name": "WhisperKit (argmax-oss-swift)",
+  "domain": "ml-and-numerics",
+  "category": "on-device-inference",
+  "baseline": "Apple SpeechAnalyzer with the SpeechTranscriber model (iOS 26 / macOS 26); whisper.cpp with its Core ML encoder",
+  "verdict": "downgrade",
+  "verdict_reason": "Argmax's own benchmark has WhisperKit beating Apple's SpeechTranscriber on speed only with the smaller whisper-base.en, which is less accurate than Apple's model. The more accurate small.en runs at half Apple's speed. A third-party short-clip test on an M4 MacBook Pro timed WhisperKit slower than whisper.cpp with Core ML, though with different Whisper variants.",
+  "evidence_tier": "C",
+  "tier_reason": "Vendor numbers; Apple's side uses an open script, but Argmax's side was run in its TestFlight app rather than published benchmark code.",
+  "claimed_speedup": "Speed factor 111 for WhisperKit whisper-base.en (15.2 error rate) vs 70 for Apple SpeechTranscriber (14.0), 1.6x (derived from page data); whisper-small.en reaches 12.8 at speed factor 35, 0.5x Apple's speed (derived from page data); third-party: WhisperKit large-v3 2.2190 s vs whisper.cpp large-v3-turbo-q5_0 with Core ML 1.2293 s",
+  "workload": "Offline transcription of a random 10% subset of the earnings22 dataset (English earnings calls); speed factor is seconds of audio processed per second of wall-clock time. Third-party test: one short live-recorded English sentence.",
+  "metric": "throughput (speed factor, x real time) and word error rate",
+  "hardware": "M4 Mac mini (Argmax); MacBook Pro M4 24GB (third-party test)",
+  "os": "macOS 26 Beta Seed 1",
+  "toolchain": "",
+  "benchmark_date": "2025-06-20",
+  "benchmark_url": "https://www.argmaxinc.com/blog/apple-and-argmax",
+  "repo_url": "https://github.com/argmaxinc/argmax-oss-swift",
+  "docs_url": null,
+  "license": "MIT",
+  "usability": "copyable",
+  "language": "Swift",
+  "platforms": "iOS 17+, macOS 14+",
+  "install": "Swift Package Manager",
+  "maintenance_status": "active",
+  "stars": 6430,
+  "last_commit": "2026-10-11",
+  "one_liner": "Whisper speech recognition in Swift on Core ML and the Neural Engine; faster than Apple's SpeechAnalyzer only with a less accurate model.",
+  "how_it_is_fast": "WhisperKit re-implements Whisper's audio encoder and text decoder as Core ML models laid out for the Apple Neural Engine and compresses the weights while keeping word error rate close to the original. The decoder's key-value cache is a Core ML stateful model updated in place. Streaming support comes from a re-trained encoder that works on partial audio.",
+  "use_it_when": [
+    "Apps that must support iOS 17 to iOS 25, where SpeechAnalyzer does not exist",
+    "You need Whisper's language coverage (100 languages vs 10 for SpeechAnalyzer) or a fine-tuned Whisper model",
+    "You want to choose the speed and accuracy point by picking the model size"
+  ],
+  "skip_it_when": [
+    "iOS 26+ / macOS 26+ English apps where Apple's SpeechTranscriber accuracy is enough: it was faster than WhisperKit at comparable accuracy",
+    "Raw throughput on a Mac: whisper.cpp with Core ML and Parakeet-based SDKs were faster in third-party timing"
+  ],
+  "caveats": [
+    "Vendor benchmark; the same post promotes Argmax's paid Pro SDK",
+    "Run on macOS 26 Beta Seed 1, days after SpeechAnalyzer was announced",
+    "Speed factor without matched accuracy misleads: the faster WhisperKit model has a higher error rate than Apple's",
+    "The third-party test used a single short clip and compared large-v3 against large-v3-turbo, so it is anecdotal"
+  ],
+  "tradeoffs": [
+    "Models are downloaded on first use, as with Apple's",
+    "Neural Engine model compilation adds first-load latency"
+  ],
+  "evidence": [
+    {
+      "url": "https://www.argmaxinc.com/blog/apple-and-argmax",
+      "quote": "Argmax WhisperKit openai/whisper-base.en 15.2 111 Apple SpeechAnalyzer Apple SpeechTranscriber 14.0 70 Argmax WhisperKit openai/whisper-small.en 12.8 35"
+    },
+    {
+      "url": "https://www.argmaxinc.com/blog/apple-and-argmax",
+      "quote": "All results are computed on an M4 Mac mini running macOS 26 Beta Seed 1."
+    },
+    {
+      "url": "https://www.argmaxinc.com/blog/apple-and-argmax",
+      "quote": "In our benchmarks, Apple matches the speed and accuracy of mid-tier OpenAI Whisper models on long-form conversational speech transcription."
+    },
+    {
+      "url": "https://github.com/anvanvan/mac-whisper-speedtest/blob/e70a8935ee31df61590521453b73ae413031862a/README.md",
+      "quote": "Test results from MacBook Pro M4 24GB:"
+    },
+    {
+      "url": "https://github.com/anvanvan/mac-whisper-speedtest/blob/e70a8935ee31df61590521453b73ae413031862a/README.md",
+      "quote": "whisper.cpp            1.2293          model=large-v3-turbo-q5_0, coreml=True, n_threads=4"
+    },
+    {
+      "url": "https://github.com/anvanvan/mac-whisper-speedtest/blob/e70a8935ee31df61590521453b73ae413031862a/README.md",
+      "quote": "whisperkit             2.2190          model=large-v3, backend=WhisperKit Swift Bridge, platform=Apple Silicon"
+    }
+  ],
+  "checked": "2026-10-28"
+}

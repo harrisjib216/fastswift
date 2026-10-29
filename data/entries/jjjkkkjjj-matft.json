@@ -1,0 +1,88 @@
+{
+  "id": "https://github.com/jjjkkkjjj/matft",
+  "name": "Matft",
+  "domain": "ml-and-numerics",
+  "category": "linear-algebra-and-dsp",
+  "baseline": "NumPy 2.0.2 on the same Mac (the published comparison); no plain-Swift-loop baseline is published",
+  "verdict": "downgrade",
+  "verdict_reason": "Release-build benchmarks on an M5 show Matft well ahead of NumPy on element-wise math and reductions and level on matrix inversion. It is slower on argsort, on building arrays from nested Swift arrays and on the default rfft. The baseline is NumPy, not the plain Swift loops a Swift developer would otherwise write.",
+  "evidence_tier": "A",
+  "tier_reason": "Benchmark script and XCTest performance tests are in the repository, with hardware, macOS, Swift and NumPy versions and the release-build command stated.",
+  "claimed_speedup": "vs NumPy: sin 290μs vs 2.80ms (0.10x), power 125μs vs 4.06ms (0.03x), rfft with vDSP 629μs vs 1.45ms (0.43x), inv 490μs vs 506μs (0.97x); slower on argsort 7.02ms vs 2.41ms (2.91x), MfArray(nested) 3.95ms vs 1.19ms (3.31x), default rfft 1.98ms vs 1.43ms (1.39x)",
+  "workload": "1,000,000-element Int and Double arrays shaped 10x10x10x10x10x10, including transposed views; 1024x1024 Float signal for rfft; 256x256 Double matrix inverse; 1000x100 nested [[Float]] for array creation.",
+  "metric": "time",
+  "hardware": "Apple M5",
+  "os": "macOS 26.5.1",
+  "toolchain": "Swift 6.2.3, swift test -c release (XCTest measure, median after warm-up); NumPy 2.0.2 on Python 3.9.6",
+  "benchmark_date": "2026-09-27",
+  "benchmark_url": "https://github.com/jjjkkkjjj/Matft/blob/618dcfcbd0674bc4081b582a5b1380bec61f811d/website/docs/performance.md",
+  "repo_url": "https://github.com/jjjkkkjjj/Matft",
+  "docs_url": null,
+  "license": "BSD-3-Clause",
+  "usability": "copyable",
+  "language": "Swift",
+  "platforms": "macOS 10.13+, iOS 12+ (tvOS, watchOS and visionOS untested)",
+  "install": "Swift Package Manager",
+  "maintenance_status": "active",
+  "stars": 147,
+  "last_commit": "2026-09-27",
+  "one_liner": "NumPy-style arrays for Swift on Accelerate; 10-33x faster than NumPy on sin and power, slower on sorting and comparisons.",
+  "how_it_is_fast": "MfArray operations dispatch to vDSP, vForce, BLAS and LAPACK from Accelerate on contiguous buffers, so element-wise math and reductions run as vectorized library calls. Operations without a matching Accelerate routine, such as argsort and boolean comparisons, use Swift code and lose to NumPy's C loops.",
+  "use_it_when": [
+    "Porting NumPy code to Swift, especially element-wise math, reductions and FFT with the vDSP flag",
+    "Audio and image preprocessing for on-device models (STFT, mel spectrograms, OpenCV-compatible ops)"
+  ],
+  "skip_it_when": [
+    "Sorting- or comparison-heavy code, where it was 1.2x to 3x slower than NumPy",
+    "Building arrays from nested Swift arrays in hot paths (3.31x slower than NumPy)",
+    "Simple loops over a flat [Float]: no data shows it beating a plain optimized Swift loop"
+  ],
+  "caveats": [
+    "Benchmarks are by the library's author",
+    "NumPy timings include Python call overhead, which favors Matft on small operations",
+    "No comparison against hand-written Swift loops"
+  ],
+  "tradeoffs": [
+    "Its own MfArray type instead of [Double] or [Float]",
+    "Apple platforms only (Accelerate)"
+  ],
+  "evidence": [
+    {
+      "url": "https://github.com/jjjkkkjjj/Matft/blob/618dcfcbd0674bc4081b582a5b1380bec61f811d/website/docs/performance.md",
+      "quote": "| `let _ = Matft.math.sin(a)` | `290μs` | `np.sin(a)` | `2.80ms` | 0.10x |"
+    },
+    {
+      "url": "https://github.com/jjjkkkjjj/Matft/blob/618dcfcbd0674bc4081b582a5b1380bec61f811d/website/docs/performance.md",
+      "quote": "| `let _ = Matft.math.power(bases: ad, exponents: 2)` | `125μs` | `np.power(ad, 2)` | `4.06ms` | 0.03x |"
+    },
+    {
+      "url": "https://github.com/jjjkkkjjj/Matft/blob/618dcfcbd0674bc4081b582a5b1380bec61f811d/website/docs/performance.md",
+      "quote": "| `let _ = Matft.fft.rfft(signal, vDSP: true)` | `629μs` | `np.fft.rfft(signal)` | `1.45ms` | 0.43x |"
+    },
+    {
+      "url": "https://github.com/jjjkkkjjj/Matft/blob/618dcfcbd0674bc4081b582a5b1380bec61f811d/website/docs/performance.md",
+      "quote": "| `let _ = try! Matft.linalg.inv(m)` | `490μs` | `np.linalg.inv(m)` | `506μs` | 0.97x |"
+    },
+    {
+      "url": "https://github.com/jjjkkkjjj/Matft/blob/618dcfcbd0674bc4081b582a5b1380bec61f811d/website/docs/performance.md",
+      "quote": "| `let _ = aneg.argsort(axis: -1)` | `7.02ms` | `np.argsort(aneg, axis=-1)` | `2.41ms` | **2.91x** |"
+    },
+    {
+      "url": "https://github.com/jjjkkkjjj/Matft/blob/618dcfcbd0674bc4081b582a5b1380bec61f811d/website/docs/performance.md",
+      "quote": "| `let _ = MfArray(nested)` | `3.95ms` | `np.array(nested, dtype=np.float32)` | `1.19ms` | **3.31x** |"
+    },
+    {
+      "url": "https://github.com/jjjkkkjjj/Matft/blob/618dcfcbd0674bc4081b582a5b1380bec61f811d/website/docs/performance.md",
+      "quote": "| `let _ = Matft.fft.rfft(signal)` | `1.98ms` | `np.fft.rfft(signal)` | `1.43ms` | **1.39x** |"
+    },
+    {
+      "url": "https://github.com/jjjkkkjjj/Matft/blob/618dcfcbd0674bc4081b582a5b1380bec61f811d/website/docs/performance.md",
+      "quote": "Measured on Apple M5, macOS 26.5.1, Swift version 6.2.3, Python 3.9.6, numpy 2.0.2 (Matft `1.0.0`, 2026-09-27)."
+    },
+    {
+      "url": "https://github.com/jjjkkkjjj/Matft/blob/618dcfcbd0674bc4081b582a5b1380bec61f811d/website/docs/performance.md",
+      "quote": "Matft: median of XCTest `measure {}` in release build (`swift test -c release`)"
+    }
+  ],
+  "checked": "2026-10-28"
+}

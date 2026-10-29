@@ -1,0 +1,94 @@
+{
+  "id": "https://github.com/swift-extras/swift-extras-base64",
+  "name": "swift-extras-base64",
+  "domain": "data-formats",
+  "category": "base64-and-encoding",
+  "baseline": "Foundation base64EncodedString / Data(base64Encoded:) with Swift 5.3 (2020), macOS and Linux",
+  "verdict": "downgrade",
+  "verdict_reason": "The 3-4x macOS and 3-10x Linux wins were measured against the 2020 Foundation. In February 2025 the same author merged a faster Swift Base64 into swift-foundation that measured 5x-7.5x faster than the Foundation of that time on 1 MB inputs, so the gap against current Foundation has likely closed; no direct comparison is published.",
+  "evidence_tier": "A",
+  "tier_reason": "The performance test source is in the repo and the README states the Intel Core i9 MacBook Pro and Swift 5.3; build flags are not stated.",
+  "claimed_speedup": "macOS, Swift 5.3: encode 0.66s vs 2.08s (3x), decode 0.54s vs 2.15s (4x). Linux: encode 0.27s vs 1.01s (3x), decode 0.41s vs 5.5s (~10x).",
+  "workload": "Encoding and decoding the base64 form of bytes 0x00-0xFF one million times",
+  "metric": "time",
+  "hardware": "MacBook Pro 16-inch (late 2019), 2.4 GHz 8-core Intel Core i9",
+  "os": "macOS and Linux (versions not stated)",
+  "toolchain": "Swift 5.3",
+  "benchmark_date": "2020-10",
+  "benchmark_url": "https://github.com/swift-extras/swift-extras-base64/blob/main/README.md",
+  "repo_url": "https://github.com/swift-extras/swift-extras-base64",
+  "docs_url": null,
+  "license": "Apache-2.0",
+  "usability": "copyable",
+  "language": "Swift",
+  "platforms": "macOS, Linux (no Foundation dependency)",
+  "install": "Swift Package Manager",
+  "maintenance_status": "active",
+  "stars": 96,
+  "last_commit": "2026-09-18",
+  "one_liner": "Foundation-free Base64 that was 3-10x faster than 2020 Foundation; its author has since brought the approach into Foundation.",
+  "how_it_is_fast": "It maps bytes to characters and back with Chromium's precomputed lookup tables (from Lemire's fastbase64) in tight loops over unsafe buffers, without Foundation's NSData bridging.",
+  "use_it_when": [
+    "Foundation-free targets (Embedded or minimal Linux images) that need Base64",
+    "Toolchains or OS versions whose Foundation predates the 2025 swift-foundation Base64 rewrite"
+  ],
+  "skip_it_when": [
+    "Current Foundation already uses the same author's faster implementation"
+  ],
+  "caveats": [
+    "Numbers are from Swift 5.3 on a 2019 Intel Mac; build configuration not stated.",
+    "Baseline replaced: swift-foundation PRs #1157 and #1160 (merged February 2025) rewrote Foundation's Base64 in Swift, and October 2026 follow-ups made it faster again.",
+    "No line-break handling when decoding or encoding."
+  ],
+  "tradeoffs": [
+    "Separate API from Foundation's Data methods",
+    "Uses unsafe Swift internally"
+  ],
+  "evidence": [
+    {
+      "url": "https://github.com/swift-extras/swift-extras-base64/blob/main/README.md",
+      "quote": "Tests were run on a MacBook Pro (16-inch, late 2019). Processor: 2.4 GHz 8-Core Intel Core i9."
+    },
+    {
+      "url": "https://github.com/swift-extras/swift-extras-base64/blob/main/README.md",
+      "quote": "#### macOS - swift 5.3"
+    },
+    {
+      "url": "https://github.com/swift-extras/swift-extras-base64/blob/main/README.md",
+      "quote": "| Foundation   | 2.08s | 2.15s |"
+    },
+    {
+      "url": "https://github.com/swift-extras/swift-extras-base64/blob/main/README.md",
+      "quote": "| swift-extras-base64 | 0.66s | 0.54s |"
+    },
+    {
+      "url": "https://github.com/swift-extras/swift-extras-base64/blob/main/README.md",
+      "quote": "| Speedup | 3x | 4x |"
+    },
+    {
+      "url": "https://github.com/swift-extras/swift-extras-base64/blob/main/README.md",
+      "quote": "| Foundation   | 1.01s | 5.5s |"
+    },
+    {
+      "url": "https://github.com/swift-extras/swift-extras-base64/blob/main/README.md",
+      "quote": "| swift-extras-base64 | 0.27s | 0.41s |"
+    },
+    {
+      "url": "https://github.com/swift-extras/swift-extras-base64/blob/main/README.md",
+      "quote": "| Speedup | 3x | **~10x** |"
+    },
+    {
+      "url": "https://github.com/swiftlang/swift-foundation/pull/1157",
+      "quote": "This PR: 414μs (7x faster)"
+    },
+    {
+      "url": "https://github.com/swiftlang/swift-foundation/pull/1160",
+      "quote": "This PR: 405μs (7.5x faster)"
+    },
+    {
+      "url": "https://github.com/swiftlang/swift-foundation/pull/1160",
+      "quote": "This PR: 406μs (5.2x faster)"
+    }
+  ],
+  "checked": "2026-10-28"
+}

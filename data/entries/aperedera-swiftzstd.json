@@ -1,0 +1,74 @@
+{
+  "id": "https://github.com/aperedera/swiftzstd",
+  "name": "SwiftZSTD (zstd)",
+  "domain": "compression",
+  "category": "general-compression",
+  "baseline": "Compression framework COMPRESSION_ZLIB and NSData.compressed(using: .zlib)",
+  "verdict": "confirm",
+  "verdict_reason": "In lzbench, zstd at level 1 compresses 15.3x and decompresses 4.3x faster than zlib -6 at a similar ratio, and level 5 is still 4.7x and 3.7x faster with smaller output. SwiftZSTD builds the official zstd C code, so the codec numbers carry over, though the Swift layer itself is unmeasured.",
+  "evidence_tier": "A",
+  "tier_reason": "Independent lzbench run with public code, CPU, compiler and corpus stated; it measures the zstd C library that SwiftZSTD builds from source.",
+  "claimed_speedup": "zstd -1: 411 MB/s vs 26.8 MB/s compression (15.3x) and 1351 MB/s vs 314 MB/s decompression (4.3x) against zlib 1.3.2 -6, ratio 34.53% vs 32.19%; zstd -5: 126 MB/s (4.7x) and 1172 MB/s (3.7x) at a smaller 29.60% (derived from page data)",
+  "workload": "Silesia corpus (silesia.tar, 212 MB), single thread, whole-file compress and decompress",
+  "metric": "throughput",
+  "hardware": "AMD EPYC 9555P at 3.20 GHz, turbo off, single thread",
+  "os": "Ubuntu 26.04",
+  "toolchain": "lzbench 2.4 built with gcc 15.2.0; zstd 1.5.7",
+  "benchmark_date": "2026",
+  "benchmark_url": "https://github.com/inikep/lzbench",
+  "repo_url": "https://github.com/aperedera/SwiftZSTD",
+  "docs_url": null,
+  "license": "NOASSERTION",
+  "usability": "copyable",
+  "language": "Swift + C",
+  "platforms": "macOS, iOS, Linux (streaming API on Apple platforms only)",
+  "install": "Swift Package Manager",
+  "maintenance_status": "active",
+  "stars": 88,
+  "last_commit": "2026-09-28",
+  "one_liner": "Swift wrapper for zstd; the codec compresses 4.7-15x and decompresses about 4x faster than zlib at similar or better ratios.",
+  "how_it_is_fast": "zstd uses a fast LZ77 match finder, Huffman-coded literals and Finite State Entropy for sequences, with branch-light decode loops that process several streams in parallel. Its low levels skip most match searching, and its decoder speed barely changes with level.",
+  "use_it_when": [
+    "Both ends are under your control (your app and your server) and you want zlib-or-better ratio at a fraction of the CPU",
+    "Large payloads, logs or caches where decode throughput matters",
+    "Dictionary compression of many small, similar records"
+  ],
+  "skip_it_when": [
+    "The consumer only speaks gzip/zlib (browsers' Content-Encoding without zstd support, older servers)",
+    "You want no third-party C code in the app; LZFSE or LZMESH are built in"
+  ],
+  "caveats": [
+    "Codec measured on x86 Linux with gcc, not through the Swift wrapper on Apple silicon",
+    "lzbench compares stock zlib; Apple's COMPRESSION_ZLIB is a separate level-5 implementation with a faster decoder",
+    "The lzbench author has contributed to zstd",
+    "GitHub reports NOASSERTION; the LICENSE file is BSD 3-Clause with an extra heading line"
+  ],
+  "tradeoffs": [
+    "Adds the zstd C library to the binary",
+    "Streaming API fails on Linux and Windows per the README",
+    "Small single-maintainer wrapper"
+  ],
+  "evidence": [
+    {
+      "url": "https://github.com/inikep/lzbench",
+      "quote": "| zstd 1.5.7 -1 | 411 MB/s | 1351 MB/s | 73193704 | 34.53 |"
+    },
+    {
+      "url": "https://github.com/inikep/lzbench",
+      "quote": "| zstd 1.5.7 -5 | 126 MB/s | 1172 MB/s | 62740852 | 29.60 |"
+    },
+    {
+      "url": "https://github.com/inikep/lzbench",
+      "quote": "| zlib 1.3.2 -6 | 26.8 MB/s | 314 MB/s | 68228431 | 32.19 |"
+    },
+    {
+      "url": "https://github.com/inikep/lzbench",
+      "quote": "The tests were run on a single thread of an AMD EPYC 9555P processor at 3.20 GHz"
+    },
+    {
+      "url": "https://github.com/aperedera/SwiftZSTD",
+      "quote": "`Package.swift` references the official ZSTD C repository on GitHub as a dependency."
+    }
+  ],
+  "checked": "2026-10-28"
+}

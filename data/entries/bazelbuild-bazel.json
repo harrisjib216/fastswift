@@ -1,0 +1,69 @@
+{
+  "id": "https://github.com/bazelbuild/bazel",
+  "name": "Bazel (with rules_swift, rules_apple and rules_xcodeproj)",
+  "domain": "tooling",
+  "category": "build-and-caching",
+  "baseline": "xcodebuild / the Xcode build system with no remote cache",
+  "verdict": "downgrade",
+  "verdict_reason": "Spotify and Allegro both report large wins, but most of it comes from a shared remote cache, remote execution and test selection with bazel-diff rather than from Bazel compiling Swift faster. Allegro's 2020 setup wrapped xcodebuild in custom rules instead of using rules_swift, and both migrations took a dedicated team.",
+  "evidence_tier": "B",
+  "tier_reason": "Engineering posts from two companies independent of the Bazel and rules authors, with headline numbers but no hardware, Xcode versions or raw data.",
+  "claimed_speedup": "Spotify: CI feedback loop from 80 minutes to 20 minutes (factor of four); one 800-test-target configuration from more than 45 minutes to less than 10 minutes. Allegro: clean build from 260s to 85s (over threefold)",
+  "workload": "Spotify: pre-merge CI for the iOS monorepo (75th percentile wait); one configuration with 800+ test targets and close to 3 million lines of code. Allegro: clean build of the Allegro iOS app (300k+ lines of Objective-C and Swift) with modules served from a shared remote cache",
+  "metric": "build time",
+  "hardware": "",
+  "os": "",
+  "toolchain": "",
+  "benchmark_date": "2023-10",
+  "benchmark_url": "https://engineering.atspotify.com/2023/10/switching-build-systems-seamlessly",
+  "repo_url": "https://github.com/bazelbuild/bazel",
+  "docs_url": null,
+  "license": "Apache-2.0",
+  "usability": "copyable",
+  "language": "Java",
+  "platforms": "macOS and Linux hosts; Apple targets through rules_apple and rules_swift",
+  "install": "Bazelisk or Homebrew; BUILD files per module; rules_xcodeproj for the Xcode IDE",
+  "maintenance_status": "active",
+  "stars": 26010,
+  "last_commit": "2026-10-28",
+  "one_liner": "Google's build system with Swift and Apple rules; Spotify cut iOS CI waits 4x, mostly through remote caching and remote execution.",
+  "how_it_is_fast": "Bazel hashes every action's inputs and reuses outputs from a shared remote cache, so CI and developers rarely compile the same code twice. Remote build execution spreads actions across many machines, and dependency queries such as bazel-diff limit CI to targets a change actually affects.",
+  "use_it_when": [
+    "Large monorepos with hundreds of modules and many engineers",
+    "Organizations that can run remote cache and remote execution infrastructure",
+    "CI where test selection by dependency graph pays off"
+  ],
+  "skip_it_when": [
+    "Small or mid-size apps where xcodebuild with Xcode 26's compilation cache or a module cache is enough",
+    "Teams without people to maintain BUILD files, rules versions and Xcode integration"
+  ],
+  "caveats": [
+    "Spotify's 4x is a CI wait-time metric that also reflects remote execution and bazel-diff test selection, not compile speed alone",
+    "Allegro's numbers are from 2020 and used a custom rule wrapping xcodebuild, not rules_swift",
+    "Neither post gives hardware, Xcode versions or raw timings beyond the headline figures"
+  ],
+  "tradeoffs": [
+    "Large migration cost: BUILD files, custom macros and a new Xcode integration (Spotify used rules_xcodeproj)",
+    "Remote cache and RBE infrastructure to run and pay for",
+    "Lag behind new Xcode features until the rules support them"
+  ],
+  "evidence": [
+    {
+      "url": "https://engineering.atspotify.com/2023/10/switching-build-systems-seamlessly",
+      "quote": "in just a few months, the CI feedback loop improved by a factor of four, decreasing from 80 minutes to 20 minutes."
+    },
+    {
+      "url": "https://engineering.atspotify.com/2023/10/switching-build-systems-seamlessly",
+      "quote": "One in particular, with more than 800 test targets containing close to 3 million lines of code, took more than 45 minutes when building with Xcode. After moving to Bazel, this time decreased to less than 10 minutes. The improvement was primarily attributed to using an efficient Bazel remote cache and parallelizing heavy"
+    },
+    {
+      "url": "https://blog.allegro.tech/2020/12/speeding-up-ios-builds-with-bazel.html",
+      "quote": "After migrating all of our modules to Bazel we were able to significantly reduce our clean build time. It dropped over threefold, going from 260s to just 85s."
+    },
+    {
+      "url": "https://blog.allegro.tech/2020/12/speeding-up-ios-builds-with-bazel.html",
+      "quote": "Thanks to shared remote cache, most of the time instead of compiling it we would just download precompiled frameworks."
+    }
+  ],
+  "checked": "2026-10-28"
+}

@@ -1,0 +1,104 @@
+{
+  "id": "https://github.com/juri/parse3339",
+  "name": "Parse3339",
+  "domain": "text-processing",
+  "category": "dates-and-numbers",
+  "baseline": "Foundation DateFormatter and ISO8601DateFormatter",
+  "verdict": "downgrade",
+  "verdict_reason": "Parse3339 is clearly faster and allocation-free, but its Foundation rows construct and configure a new formatter inside every timed iteration, so the 41x-52x gap mixes formatter creation with parsing. Code that caches its formatter will see a smaller gap.",
+  "evidence_tier": "A",
+  "tier_reason": "Public package-benchmark suite in the repository with hardware and OS stated (MacBook Pro M5, macOS 27.0.1); package-benchmark builds in release mode.",
+  "claimed_speedup": "Median wall clock per iteration: DateFormatter 93503 ns and ISO8601DateFormatter 119679 ns vs Parse3339 to Date via Unix time 2291 ns (40.8x and 52.2x, derived from page data) or via DateComponents 708 ns; parse-only String entry point 16 ns. Mallocs per iteration: 1063 (DateFormatter) vs 0 (Parse3339, Unix time).",
+  "workload": "Parse '2023-07-04T08:21:25+03:00' to a Date; Foundation rows include creating and configuring the formatter each iteration. Parse-only rows cycle through 8,192 varied timestamps.",
+  "metric": "time, allocations",
+  "hardware": "MacBook Pro M5",
+  "os": "macOS 27.0.1",
+  "toolchain": "swift package benchmark (release); swift-tools-version 6.3",
+  "benchmark_date": "2026-10",
+  "benchmark_url": "https://github.com/juri/Parse3339#speed-and-memory-usage",
+  "repo_url": "https://github.com/juri/Parse3339",
+  "docs_url": null,
+  "license": "MIT",
+  "usability": "copyable",
+  "language": "Swift",
+  "platforms": "macOS 15+, iOS 16+",
+  "install": "Swift Package Manager (or copy the single source file)",
+  "maintenance_status": "active",
+  "stars": 46,
+  "last_commit": "2026-10-25",
+  "one_liner": "Single-file RFC 3339 timestamp parser; parses in 16 ns with zero allocations, far ahead of Foundation formatters created per call.",
+  "how_it_is_fast": "It walks the bytes of the string once with no regex, locale or ICU involvement and no heap allocation, producing plain integer fields. Conversion to Date goes through timegm or DateComponents only when asked.",
+  "use_it_when": [
+    "Decoding many RFC 3339 timestamps, for example as a JSONDecoder custom date strategy",
+    "Code that currently builds a DateFormatter per call or per object"
+  ],
+  "skip_it_when": [
+    "Inputs outside its four supported RFC 3339 shapes (no week dates, no basic format, no localized dates)",
+    "Apps targeting below iOS 16 or macOS 15"
+  ],
+  "caveats": [
+    "Foundation formatter construction happens inside the timed closure, so the 41x-52x ratios overstate the gain against a cached formatter.",
+    "Date.ISO8601FormatStyle is not benchmarked.",
+    "The 16 ns parse-only figure excludes building a Date; the full path to Date is 708-2,291 ns.",
+    "Single machine, single run."
+  ],
+  "tradeoffs": [
+    "Supports a restricted subset of RFC 3339.",
+    "Requires a recent toolchain (Swift tools 6.3)."
+  ],
+  "evidence": [
+    {
+      "url": "https://github.com/juri/Parse3339/blob/main/README.md",
+      "quote": "Parse3339 is a fast [RFC 3339] time stamp parser written in pure Swift."
+    },
+    {
+      "url": "https://github.com/juri/Parse3339/blob/main/README.md",
+      "quote": "Output from one run (macOS 27.0.1, MacBook Pro M5):"
+    },
+    {
+      "url": "https://github.com/juri/Parse3339/blob/main/README.md",
+      "quote": "There are also benchmarks that parse the same string using Foundation's `DateFormatter`, Foundation's `ISO8601DateFormatter`, Parse3339 creating a `Date` with Foundation's `DateComponents` and `Calendar`, and Parse3339 creating a `Date` with standard Unix functions."
+    },
+    {
+      "url": "https://github.com/juri/Parse3339/blob/main/README.md",
+      "quote": "| Time (wall clock) (ns) * | 86750 | 92927 | 93503 | 94079 |"
+    },
+    {
+      "url": "https://github.com/juri/Parse3339/blob/main/README.md",
+      "quote": "| Time (wall clock) (ns) * | 110958 | 118847 | 119679 | 120575 |"
+    },
+    {
+      "url": "https://github.com/juri/Parse3339/blob/main/README.md",
+      "quote": "| Time (wall clock) (ns) * | 542 | 667 | 708 | 708 |"
+    },
+    {
+      "url": "https://github.com/juri/Parse3339/blob/main/README.md",
+      "quote": "| Time (wall clock) (ns) * | 2041 | 2251 | 2291 | 2333 |"
+    },
+    {
+      "url": "https://github.com/juri/Parse3339/blob/main/README.md",
+      "quote": "| Time (wall clock) (ns) * | 15 | 16 | 16 | 16 |"
+    },
+    {
+      "url": "https://github.com/juri/Parse3339/blob/main/README.md",
+      "quote": "| Malloc (total) * | 1063 | 1063 | 1063 | 1063 |"
+    },
+    {
+      "url": "https://github.com/juri/Parse3339/blob/main/README.md",
+      "quote": "These benchmarks use 8,192 timestamps with varying dates, fractional precision, and time zones."
+    },
+    {
+      "url": "https://github.com/juri/Parse3339/blob/main/Benchmarks/ParserBenchmarks/ParserBenchmarks.swift",
+      "quote": "let dateFormatter = DateFormatter()"
+    },
+    {
+      "url": "https://github.com/juri/Parse3339/blob/main/Benchmarks/ParserBenchmarks/ParserBenchmarks.swift",
+      "quote": "let s = \"2023-07-04T08:21:25+03:00\""
+    },
+    {
+      "url": "https://github.com/juri/Parse3339/blob/main/Package.swift",
+      "quote": "swift-tools-version: 6.3"
+    }
+  ],
+  "checked": "2026-10-28"
+}

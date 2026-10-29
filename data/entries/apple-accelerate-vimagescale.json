@@ -1,0 +1,66 @@
+{
+  "id": "apple:accelerate#vimagescale",
+  "name": "vImage (vImageScale_ARGB8888)",
+  "domain": "images-and-media",
+  "category": "resizing-and-processing",
+  "baseline": "UIGraphicsImageRenderer drawing a UIImage(contentsOfFile:) into a smaller context",
+  "verdict": "reject",
+  "verdict_reason": "In the only end-to-end published comparison found, resizing a 12,000 px JPEG from disk took 2.3126 s with vImage against 0.1420 s with UIGraphicsImageRenderer, about 16x slower, because the vImage path decodes the full-resolution image into a buffer before scaling. The result says nothing about already-decoded pixel buffers.",
+  "evidence_tier": "B",
+  "tier_reason": "Independent measurement (NSHipster) with public code and the device and OS stated, run in the Debug test configuration.",
+  "claimed_speedup": "No speedup measured: vImage 2.3126 s vs UIKit 0.1420 s (16.3x slower, derived from page data).",
+  "workload": "Load a 12,000 px square, 20 MB JPEG from disk, scale it to 100 x 100 and return a UIImage; average of XCTest measure() iterations.",
+  "metric": "time",
+  "hardware": "iPhone 7",
+  "os": "iOS 12.2",
+  "toolchain": "Swift 5.0; Debug test configuration in the example project's scheme",
+  "benchmark_date": "2019-05-06",
+  "benchmark_url": "https://nshipster.com/image-resizing/",
+  "repo_url": null,
+  "docs_url": "https://developer.apple.com/documentation/accelerate/vimage",
+  "license": "Apple SDK",
+  "usability": "platform",
+  "language": "C",
+  "platforms": "iOS, macOS, tvOS, watchOS, visionOS",
+  "install": "built into iOS and macOS (Accelerate)",
+  "maintenance_status": "active",
+  "stars": null,
+  "last_commit": "",
+  "one_liner": "Accelerate's SIMD image scaler; resizing a JPEG from disk was 16x slower than UIGraphicsImageRenderer in an iPhone 7 test.",
+  "how_it_is_fast": "vImageScale_ARGB8888 is a SIMD-vectorized CPU resampler. In this test its speed is beside the point: the vImage path calls CGImageSourceCreateImageAtIndex and vImageBuffer_InitWithCGImage, which decode and copy all 144 million source pixels before scaling begins, while the UIKit path does not pay that full cost.",
+  "use_it_when": [
+    "You already hold decoded pixel buffers (camera frames, editing pipelines) and need high-quality resampling",
+    "Batch processing inside a pipeline already built on Accelerate"
+  ],
+  "skip_it_when": [
+    "Making thumbnails from encoded JPEG, HEIC or PNG files: UIKit and Image I/O were 14x to 16x faster in the published test"
+  ],
+  "caveats": [
+    "Debug test configuration; the timed work is mostly inside Accelerate and ImageIO",
+    "iPhone 7 with iOS 12.2 (2019)",
+    "Decode and scale are timed together; the scaling step alone was not measured"
+  ],
+  "tradeoffs": [
+    "Verbose C API: buffer allocation, pixel formats and error codes by hand",
+    "Needs the whole decoded image in memory first"
+  ],
+  "evidence": [
+    {
+      "url": "https://github.com/NSHipster/articles/blob/master/2019-05-06-image-resizing.md",
+      "quote": "performed on an iPhone 7 running iOS 12.2,"
+    },
+    {
+      "url": "https://github.com/NSHipster/articles/blob/master/2019-05-06-image-resizing.md",
+      "quote": "| Technique #1: `UIKit` | 0.1420 |"
+    },
+    {
+      "url": "https://github.com/NSHipster/articles/blob/master/2019-05-06-image-resizing.md",
+      "quote": "| Technique #5: `vImage` | 2.3126 |"
+    },
+    {
+      "url": "https://github.com/NSHipster/articles/blob/master/2019-05-06-image-resizing.md",
+      "quote": "the extra work necessary to use the low-level Accelerate APIs probably isn't justified in most circumstances."
+    }
+  ],
+  "checked": "2026-10-28"
+}

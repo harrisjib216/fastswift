@@ -1,0 +1,65 @@
+{
+  "id": "https://github.com/michaeleisel/zippyjson",
+  "name": "ZippyJSON",
+  "domain": "data-formats",
+  "category": "json",
+  "baseline": "Foundation JSONDecoder before iOS 17 / macOS 14 (Swift wrapper over NSJSONSerialization)",
+  "verdict": "downgrade",
+  "verdict_reason": "The 3x+ decode win was measured against the old JSONDecoder that went through NSJSONSerialization. The README now says JSONDecoder is faster than ZippyJSON on iOS 17+, so the gain only applies to apps still running on iOS 16 and earlier.",
+  "evidence_tier": "C",
+  "tier_reason": "First-party README: the text gives only '3x+' and 'divide by 4', the per-file figures are in a chart image, and no device model, OS or Swift version is stated.",
+  "claimed_speedup": "3x+ faster decode for all 3 test files on Mac and iPhone; README rule of thumb: divide JSONDecoder's time by 4 (pre-iOS 17 only)",
+  "workload": "Decoding three JSON files into Codable models (files not named in the text); release build",
+  "metric": "time",
+  "hardware": "MacBook Pro and iPhone (models not stated)",
+  "os": "",
+  "toolchain": "",
+  "benchmark_date": "",
+  "benchmark_url": "https://github.com/michaeleisel/ZippyJSON/blob/master/README.md",
+  "repo_url": "https://github.com/michaeleisel/ZippyJSON",
+  "docs_url": null,
+  "license": "MIT",
+  "usability": "copyable",
+  "language": "Swift + C++",
+  "platforms": "iOS 11+, macOS 10.13+, tvOS 12+ (CocoaPods); Swift Package Manager on iOS only",
+  "install": "CocoaPods; Swift Package Manager (iOS only)",
+  "maintenance_status": "stale",
+  "stars": 956,
+  "last_commit": "2025-09-07",
+  "one_liner": "Drop-in JSONDecoder built on simdjson; 3-4x faster than the pre-iOS 17 decoder, and slower than iOS 17+'s by its own README.",
+  "how_it_is_fast": "It tokenizes with simdjson, a SIMD-vectorized C++ parser, and decodes Codable values straight from the parsed result. The old Foundation decoder first built an NSDictionary/NSArray tree through NSJSONSerialization and then walked it; ZippyJSON skips that tree. ISO-8601 dates go through JJLISO8601DateFormatter instead of Foundation's formatter.",
+  "use_it_when": [
+    "The app still supports iOS 16 or earlier and JSON decoding shows up in profiles on those devices",
+    "Large payloads decoded on older OS versions where the pre-2023 decoder runs"
+  ],
+  "skip_it_when": [
+    "Deployment target is iOS 17+ / macOS 14+: the README says the system JSONDecoder is faster",
+    "You need a faster encoder: ZippyJSON only replaces JSONDecoder",
+    "You are measuring a debug build: the README warns to build for release"
+  ],
+  "caveats": [
+    "Per-file numbers exist only in a chart image (misc/chart.svg); the text gives only '3x+' and 'divide by 4'.",
+    "The chart predates iOS 17; README history shows it from the 2019-2020 releases. No OS or Swift version is given.",
+    "A chart-only benchmark in the ReerJSON README (iPhone 15 Pro, iOS 26.0, by a competing library's author) shows ZippyJSON at roughly 1.0x-2.1x Foundation's decode throughput, which conflicts with ZippyJSON's own iOS 17+ note. Neither source gives text numbers for iOS 17+."
+  ],
+  "tradeoffs": [
+    "Adds a C++ dependency (simdjson) and its binary size",
+    "Decoder only; no JSONEncoder replacement",
+    "Swift Package Manager support is iOS-only per the README"
+  ],
+  "evidence": [
+    {
+      "url": "https://github.com/michaeleisel/ZippyJSON/blob/master/README.md",
+      "quote": "JSONDecoder is faster than ZippyJSON for iOS 17+. The rest of this document describes the performance difference pre-iOS 17."
+    },
+    {
+      "url": "https://github.com/michaeleisel/ZippyJSON/blob/master/README.md",
+      "quote": "These benchmarks were done on a Macbook Pro. The results are very similar on the iPhone (ZippyJSON is 3x+ faster for all 3 files on both platforms)."
+    },
+    {
+      "url": "https://github.com/michaeleisel/ZippyJSON/blob/master/README.md",
+      "quote": "divide its current time taken by 4 to approximate the time taken with ZippyJSON"
+    }
+  ],
+  "checked": "2026-10-28"
+}

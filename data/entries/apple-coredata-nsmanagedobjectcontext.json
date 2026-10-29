@@ -1,0 +1,72 @@
+{
+  "id": "apple:coredata#nsmanagedobjectcontext",
+  "name": "Core Data (used directly instead of SwiftData)",
+  "domain": "storage",
+  "category": "sqlite-and-orms",
+  "baseline": "SwiftData @Model objects (iOS 17)",
+  "verdict": "downgrade",
+  "verdict_reason": "Developer reports from late 2023 put SwiftData far behind Core Data: fetches of about 1 ms in Core Data taking about 20 ms, and a 30,000-row import taking 90+ seconds against 3 seconds. These are anecdotes without code or build settings, and one developer saw much less lag on the iOS 18 beta, though memory stayed at double Core Data's.",
+  "evidence_tier": "D",
+  "tier_reason": "Forum and blog reports with numbers but no published code, device, OS build or compiler settings.",
+  "claimed_speedup": "Fetch/query: 'around 1ms in CoreData' vs 'around 20ms' in SwiftData; creating ~30,000 @Model instances: '90+ seconds' vs 3 seconds without the @Model macro and in the earlier Core Data version; iOS 18 beta: SwiftData 'memory usage was still double that of CoreData'.",
+  "workload": "Instantiating @Model objects (15 scalar properties) from a ~30,000-line CSV; fetch/query calls profiled with Instruments in an app migrating from Core Data.",
+  "metric": "time, memory",
+  "hardware": "",
+  "os": "",
+  "toolchain": "",
+  "benchmark_date": "2023-11-29",
+  "benchmark_url": "https://forums.swift.org/t/creating-instances-of-swiftdata-models-very-slow/68680",
+  "repo_url": null,
+  "docs_url": "https://developer.apple.com/documentation/coredata",
+  "license": "Apple SDK",
+  "usability": "platform",
+  "language": "Objective-C",
+  "platforms": "iOS, macOS, tvOS, watchOS, visionOS",
+  "install": "built into iOS and macOS",
+  "maintenance_status": "active",
+  "stars": null,
+  "last_commit": "",
+  "one_liner": "Using Core Data directly skips SwiftData's model layer; developers report fetches about 20x faster, but only anecdotally.",
+  "how_it_is_fast": "SwiftData sits on top of Core Data: every @Model instance carries macro-generated accessors, a backing-data object and an observation registrar, and a reply in the same thread says its in-memory storage keeps values in a Dictionary. NSManagedObject subclasses skip that layer, and Core Data adds batch insert, update and delete requests that write without creating objects at all.",
+  "use_it_when": [
+    "Bulk imports or tight fetch loops where per-object model overhead shows up in profiles",
+    "Apps that still support iOS 16 or earlier",
+    "Work that suits NSBatchInsertRequest and other batch requests"
+  ],
+  "skip_it_when": [
+    "Small data sets where the per-object overhead is not measurable",
+    "Teams that value SwiftData's macro models and @Query more than raw speed"
+  ],
+  "caveats": [
+    "No device, OS build or Debug/Release setting is given; a reply asks whether the poster used a Release build",
+    "Reports date from iOS 17.x; SwiftData internals changed in later releases and one developer reports much less lag on the iOS 18 beta",
+    "No controlled, reproducible SwiftData vs Core Data benchmark was found"
+  ],
+  "tradeoffs": [
+    "Older API: NSManagedObject subclasses, contexts and threading rules",
+    "More boilerplate in SwiftUI than @Model and @Query"
+  ],
+  "evidence": [
+    {
+      "url": "https://forums.swift.org/t/creating-instances-of-swiftdata-models-very-slow/68680",
+      "quote": "This takes around 90+ seconds to complete."
+    },
+    {
+      "url": "https://forums.swift.org/t/creating-instances-of-swiftdata-models-very-slow/68680",
+      "quote": "The loop takes 3 seconds."
+    },
+    {
+      "url": "https://forums.swift.org/t/creating-instances-of-swiftdata-models-very-slow/68680",
+      "quote": "In previous version of my app using core data loop took 3 seconds also."
+    },
+    {
+      "url": "https://forums.swift.org/t/creating-instances-of-swiftdata-models-very-slow/68680",
+      "quote": "Profiling with the instrument showed that operations (e.g. Fetch/Query) that took around 1ms in CoreData take around 20ms now."
+    },
+    {
+      "url": "https://mjtsai.com/blog/2024/10/16/returning-to-core-data/",
+      "quote": "I did, and while there was much less lag, memory usage was still double that of CoreData."
+    }
+  ],
+  "checked": "2026-10-28"
+}

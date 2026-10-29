@@ -1,0 +1,81 @@
+{
+  "id": "https://github.com/krzyzanowskim/cryptoswift",
+  "name": "CryptoSwift",
+  "domain": "crypto-and-hashing",
+  "category": "crypto-hashes-and-ciphers",
+  "baseline": "CommonCrypto and CryptoKit",
+  "verdict": "reject",
+  "verdict_reason": "Every published comparison found has CommonCrypto ahead: 3.5x on a SHA-256 loop and 57x on 10 MB AES-256 encryption. The one report of CryptoSwift beating CryptoKit was against the 2019 CryptoKit beta on tiny inputs, and on the same harness CommonCrypto was 3.5x faster than CryptoSwift.",
+  "evidence_tier": "B",
+  "tier_reason": "Third-party measurements by users of the libraries (forum thread and a competing project's README), with code shown but little hardware or build detail.",
+  "claimed_speedup": "CryptoSwift slower, not faster: double SHA-256 loop 3.847 s vs 1.094 s with CommonCrypto (3.5x slower); 10 MB AES-256 encrypt 5255 ms vs 92 ms for CommonCrypto-based RNCryptor (57x slower) (derived from page data). Opposing data point: CryptoKit beta measured 40-80% slower, later 60% slower, than CryptoSwift in 2019",
+  "workload": "Repeated SHA-256(SHA-256(data)) over small inputs in a proof-of-work loop; separately, AES-256 encryption of a 10 MB buffer",
+  "metric": "time",
+  "hardware": "2016 MacBook Pro (SHA-256 thread); 2.6 GHz Intel Core i7 (AES table)",
+  "os": "macOS 10.14 for the CommonCrypto run",
+  "toolchain": "Xcode 11 beta for the CryptoKit comparison; other build settings not stated",
+  "benchmark_date": "2019-08",
+  "benchmark_url": "https://forums.swift.org/t/cryptokit-sha256-much-much-slower-than-cryptoswift/27983",
+  "repo_url": "https://github.com/krzyzanowskim/CryptoSwift",
+  "docs_url": null,
+  "license": "NOASSERTION",
+  "usability": "reference",
+  "language": "Swift",
+  "platforms": "iOS 11+, macOS 10.13+, tvOS 11+, watchOS 4+, visionOS 1+, Linux, Android",
+  "install": "Swift Package Manager, Carthage, CocoaPods (deprecated)",
+  "maintenance_status": "active",
+  "stars": 10578,
+  "last_commit": "2026-08-19",
+  "one_liner": "Pure-Swift crypto algorithms; measured 3.5x to 57x slower than CommonCrypto, so use it for portability or missing algorithms, not speed.",
+  "how_it_is_fast": "It is not faster. CryptoSwift implements AES, SHA and other primitives in portable Swift without hardware AES or SHA instructions. CommonCrypto and CryptoKit call Apple's corecrypto, which uses the CPU's AES and SHA extensions and hand-tuned assembly.",
+  "use_it_when": [
+    "Algorithms or modes CryptoKit lacks (AES-CBC, AES-CTR, Blowfish, Rabbit) on platforms without CommonCrypto, such as Linux or Android",
+    "Code that must share one Swift crypto API across Apple platforms, Linux and Android"
+  ],
+  "skip_it_when": [
+    "Bulk encryption or hashing on Apple platforms; CryptoKit or CommonCrypto use hardware acceleration",
+    "Debug builds: the author says unoptimized builds of crypto-heavy code are dramatically slower"
+  ],
+  "caveats": [
+    "The 5255 ms AES figure is disputed by the CryptoSwift author as a likely debug build; even a much better release figure would remain far behind 92 ms",
+    "The RNCryptor and CryptoSwift AES numbers were not measured with matched settings on matched hardware",
+    "The CryptoKit-slower result came from the CryptoKit beta in Xcode 11, first in the iOS Simulator and then on macOS; profiling in the thread pointed to buffer allocation around the call",
+    "No release-build, same-machine comparison of CryptoSwift, CommonCrypto and CryptoKit on Apple silicon was found",
+    "GitHub reports the license as NOASSERTION: it is zlib-style text with an added acknowledgment requirement, not a standard OSI license"
+  ],
+  "tradeoffs": [
+    "Much lower throughput than hardware-backed implementations",
+    "Pure-Swift code without the hardware acceleration and side-channel review of corecrypto or BoringSSL"
+  ],
+  "evidence": [
+    {
+      "url": "https://forums.swift.org/t/cryptokit-sha256-much-much-slower-than-cryptoswift/27983",
+      "quote": "It ran in 1.094s compared 3.847 for CryptoSwift on my computer"
+    },
+    {
+      "url": "https://forums.swift.org/t/cryptokit-sha256-much-much-slower-than-cryptoswift/27983",
+      "quote": "not 3 times as slow but between 40-80% slower."
+    },
+    {
+      "url": "https://forums.swift.org/t/cryptokit-sha256-much-much-slower-than-cryptoswift/27983",
+      "quote": "CryptoKit being 60% slower than CryptoSwift."
+    },
+    {
+      "url": "https://github.com/etienne-martin/WebCrypto.swift",
+      "quote": "here are the results obtained when encrypting a 10MB file with AES-256 on a 2.6 GHz Intel Core i7."
+    },
+    {
+      "url": "https://github.com/etienne-martin/WebCrypto.swift",
+      "quote": "**RNCryptor** 92ms"
+    },
+    {
+      "url": "https://github.com/etienne-martin/WebCrypto.swift",
+      "quote": "**CryptoSwift:** 5255ms"
+    },
+    {
+      "url": "https://github.com/krzyzanowskim/CryptoSwift",
+      "quote": "Debug builds can be dramatically slower than optimized Release builds."
+    }
+  ],
+  "checked": "2026-10-28"
+}

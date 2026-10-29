@@ -1,0 +1,75 @@
+{
+  "id": "apple:uikit#textkit-2",
+  "name": "TextKit 2 (NSTextLayoutManager)",
+  "domain": "ui-and-rendering",
+  "category": "text-rendering",
+  "baseline": "TextKit 1 (NSLayoutManager) in UITextView and NSTextView",
+  "verdict": "downgrade",
+  "verdict_reason": "Apple presents TextKit 2's viewport-based, always noncontiguous layout as fast for documents of hundreds of megabytes but publishes no numbers. The one public benchmark suite found it only 'a small amount faster' than TextKit 1 on a macOS 14 beta, and a long-time TextKit 2 editor author reports unstable height estimates and scrolling jumps.",
+  "evidence_tier": "D",
+  "tier_reason": "Directional statements only: Apple gives no figures and the third-party benchmark README reports results in words.",
+  "claimed_speedup": "No numbers. Apple: 'TextKit 2 is extremely fast'. ChimeHQ TextViewBenchmark: TextKit 2 'even a small amount faster' than TextKit 1 on a macOS 14 beta; TextKit 2 was 'basically unusable' on macOS 12.",
+  "workload": "Apple: scrolling and laying out large documents. ChimeHQ: automated XCTest UI performance tests of NSTextView on macOS.",
+  "metric": "time (directional)",
+  "hardware": "",
+  "os": "macOS 12 to 14 (ChimeHQ); iOS 15+ and macOS 12+ (Apple)",
+  "toolchain": "",
+  "benchmark_date": "2023",
+  "benchmark_url": "https://github.com/ChimeHQ/TextViewBenchmark",
+  "repo_url": null,
+  "docs_url": "https://developer.apple.com/documentation/uikit/nstextlayoutmanager",
+  "license": "Apple SDK",
+  "usability": "platform",
+  "language": "Objective-C",
+  "platforms": "iOS 15+, macOS 12+",
+  "install": "built into iOS 15+ and macOS 12+",
+  "maintenance_status": "active",
+  "stars": null,
+  "last_commit": "",
+  "one_liner": "Apple's viewport-based text engine; pitched as faster than TextKit 1 for large documents, but no published numbers and mixed field reports.",
+  "how_it_is_fast": "TextKit 2 lays out only the viewport plus an overscroll region and estimates the rest, so opening or jumping into a large document does not lay out all preceding text. TextKit 1 lays out contiguously from the start unless noncontiguous layout is turned on.",
+  "use_it_when": [
+    "Very large documents where TextKit 1's contiguous layout causes hangs on open or jump-to-line",
+    "New text views on iOS 16+ or macOS 13+ that avoid TextKit 1 compatibility mode"
+  ],
+  "skip_it_when": [
+    "Editors that need stable total document height or exact scroll positions, where estimated heights cause scrollbar jumps",
+    "Code that touches layoutManager, which silently switches the view back to TextKit 1"
+  ],
+  "caveats": [
+    "No Apple numbers; the WWDC21 claims are qualitative.",
+    "ChimeHQ's benchmark README states results in words only and ran on a macOS 14 beta.",
+    "Marcin Krzyzanowski (STTextView) reports, after four years on TextKit 2, that viewport height estimates change as more text is laid out and that TextEdit shows the same problems."
+  ],
+  "tradeoffs": [
+    "Estimated layout outside the viewport makes total height and scroll offsets unstable.",
+    "Falling back to TextKit 1 compatibility mode is one-way and costly."
+  ],
+  "evidence": [
+    {
+      "url": "https://developer.apple.com/videos/play/wwdc2021/10061/",
+      "quote": "TextKit 2 is extremely fast"
+    },
+    {
+      "url": "https://github.com/ChimeHQ/TextViewBenchmark/blob/main/README.md",
+      "quote": "Based on these tests, TextKit 1 is extremely fast and TextKit 2 actually even a small amount faster!"
+    },
+    {
+      "url": "https://github.com/ChimeHQ/TextViewBenchmark/blob/main/README.md",
+      "quote": "I'm using macOS 14 beta, so that may be a factor."
+    },
+    {
+      "url": "https://github.com/ChimeHQ/TextViewBenchmark/blob/main/README.md",
+      "quote": "It was introduced in macOS 12, and I found it basically unusable."
+    },
+    {
+      "url": "https://mjtsai.com/blog/?p=48928",
+      "quote": "The estimation changes frequently as I lay out more/different parts of the document."
+    },
+    {
+      "url": "https://mjtsai.com/blog/?p=48928",
+      "quote": "TextEdit app from macOS suffers from the very same issues I do in my implementations."
+    }
+  ],
+  "checked": "2026-10-28"
+}

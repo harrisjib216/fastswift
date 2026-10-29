@@ -1,0 +1,78 @@
+{
+  "id": "https://github.com/jaesung-jung/swiftxxhash",
+  "name": "SwiftXXHash (xxHash XXH3/XXH64)",
+  "domain": "crypto-and-hashing",
+  "category": "non-crypto-hashes",
+  "baseline": "Swift's Hasher (SipHash-1-3) and hashValue",
+  "verdict": "downgrade",
+  "verdict_reason": "xxHash's own x86 benchmark shows XXH3 at 10x SipHash's bulk bandwidth and 3.1x its small-input speed, and this package wraps that C code unmodified. But the comparison is against reference SipHash-2-4 in C, nothing measures the Swift wrapper, and Dictionary and Set cannot swap out Hasher, so the win applies only to hashing byte buffers yourself.",
+  "evidence_tier": "A",
+  "tier_reason": "xxHash's public benchmark program with CPU, OS and compiler flags stated; it measures the bundled C library, not the Swift layer.",
+  "claimed_speedup": "XXH3 (SSE2) 31.5 GB/s vs SipHash 3.0 GB/s (10.5x), XXH3 (AVX2) 59.4 GB/s (19.8x), XXH64 19.4 GB/s (6.5x); small-data velocity 133.1 vs 43.2 for SipHash (3.1x) (ratios derived from page data)",
+  "workload": "Bulk hashing bandwidth on in-cache input, plus a 'small data velocity' score for short keys",
+  "metric": "throughput",
+  "hardware": "Intel i7-9700K",
+  "os": "Ubuntu 20.04 x64",
+  "toolchain": "Clang 10.0, -O3",
+  "benchmark_date": "",
+  "benchmark_url": "https://github.com/Cyan4973/xxHash",
+  "repo_url": "https://github.com/Jaesung-Jung/SwiftXXHash",
+  "docs_url": null,
+  "license": "MIT",
+  "usability": "copyable",
+  "language": "Swift + C",
+  "platforms": "iOS 13+, macOS 10.15+, tvOS 13+, watchOS 6+, visionOS 1+",
+  "install": "Swift Package Manager",
+  "maintenance_status": "active",
+  "stars": 6,
+  "last_commit": "2025-11-20",
+  "one_liner": "Swift wrapper for the official xxHash C library; XXH3 hashes bytes about 10x faster than SipHash in xxHash's x86 benchmark.",
+  "how_it_is_fast": "XXH3 consumes input in wide stripes with SIMD multiply-and-accumulate (SSE2, AVX2 or NEON) and has a separate short-input path with few branches. SipHash runs several ARX rounds per 8-byte block to resist hash flooding, which costs throughput. The wrapper hands the buffer pointer straight to the C functions.",
+  "use_it_when": [
+    "Checksumming files, cache keys over large blobs, content deduplication, or change detection where you hash bytes directly",
+    "Inputs are trusted, so hash flooding is not a concern"
+  ],
+  "skip_it_when": [
+    "Dictionary or Set keys: Swift always runs keys through Hasher, so feeding a precomputed xxHash into hash(into:) still pays for SipHash",
+    "Attacker-controlled keys: xxHash has no secret seed by default and can be flooded",
+    "Integrity against tampering: use SHA-256 from CryptoKit"
+  ],
+  "caveats": [
+    "x86 numbers (SSE2/AVX2); Apple silicon uses the NEON path, which this table does not cover",
+    "The SipHash row is the C reference, almost certainly SipHash-2-4; Swift's Hasher runs the lighter SipHash-1-3, so the real gap to Hasher is smaller",
+    "No measurement of the Swift wrapper or of Data/Array bridging overhead",
+    "Very small project (6 stars)"
+  ],
+  "tradeoffs": [
+    "Not resistant to hash flooding",
+    "Adds a C target to the package",
+    "Hash values are stable across runs, unlike Hasher's per-process seed, which is useful for persistence but leaks information if exposed"
+  ],
+  "evidence": [
+    {
+      "url": "https://github.com/Cyan4973/xxHash",
+      "quote": "| SipHash | 64 | 3.0 GB/s | 43.2 | |"
+    },
+    {
+      "url": "https://github.com/Cyan4973/xxHash",
+      "quote": "| **XXH3** (SSE2) | 64 | 31.5 GB/s | 133.1 | |"
+    },
+    {
+      "url": "https://github.com/Cyan4973/xxHash",
+      "quote": "| **XXH3** (AVX2) | 64 | 59.4 GB/s | 133.1 | |"
+    },
+    {
+      "url": "https://github.com/Cyan4973/xxHash",
+      "quote": "| **XXH64** | 64 | 19.4 GB/s | 71.0 | |"
+    },
+    {
+      "url": "https://github.com/Cyan4973/xxHash",
+      "quote": "The benchmarked reference system uses an Intel i7-9700K CPU running Ubuntu x64 20.04."
+    },
+    {
+      "url": "https://github.com/Jaesung-Jung/SwiftXXHash",
+      "quote": "is a Swift wrapper around the official [xxHash](https://github.com/Cyan4973/xxHash) C library"
+    }
+  ],
+  "checked": "2026-10-28"
+}

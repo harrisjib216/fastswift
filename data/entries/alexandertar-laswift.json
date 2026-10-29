@@ -1,0 +1,79 @@
+{
+  "id": "https://github.com/alexandertar/laswift",
+  "name": "LASwift",
+  "domain": "ml-and-numerics",
+  "category": "linear-algebra-and-dsp",
+  "baseline": "Plain Swift loops; the only benchmark compares against NumPy, Octave, hmatrix and gonum",
+  "verdict": "downgrade",
+  "verdict_reason": "The only benchmark (2017, LASwift 0.1.2 on Swift 3.0.2) compares against other languages' libraries, not Swift loops. It shows LASwift level with or ahead of NumPy on multiply and inversion but about 19 times slower on column sums, and its transpose figure of 11e9 ns looks like a measurement error. The project has had no commits since January 2023.",
+  "evidence_tier": "B",
+  "tier_reason": "Third-party benchmark repository with code for every library, written by another library's author, but no hardware or build flags stated.",
+  "claimed_speedup": "1000x1000 matrices: multiply 30 ms vs NumPy 37.01 ms; invert 39 ms vs 84.74 ms; but sum by columns 13 ms vs 0.692 ms and transpose reported as 11e9 ns",
+  "workload": "1000x1000 random matrices: creation, inversion, Cholesky, multiply, transpose, sigmoid, ReLU, row and column sums and argmax; 1,000,000-element dot product.",
+  "metric": "time",
+  "hardware": "",
+  "os": "",
+  "toolchain": "Apple Swift 3.0.2; NumPy 1.11.1 on Python 3.5.2",
+  "benchmark_date": "2017-08",
+  "benchmark_url": "https://github.com/Alexander-Ignatyev/linalg-benchmarks/blob/d2abf7695d7452752d6f86acfa7bdb6b721c4d40/README.md",
+  "repo_url": "https://github.com/AlexanderTar/LASwift",
+  "docs_url": null,
+  "license": "BSD-3-Clause",
+  "usability": "copyable",
+  "language": "Swift",
+  "platforms": "macOS 10.13+, iOS 12+, tvOS 12+, watchOS 6+",
+  "install": "Swift Package Manager, CocoaPods, Carthage",
+  "maintenance_status": "abandoned",
+  "stars": 147,
+  "last_commit": "2023-01-09",
+  "one_liner": "Matlab-style vector and matrix library over Accelerate; a 2017 Swift 3 benchmark puts it near NumPy, with no Swift-loop baseline.",
+  "how_it_is_fast": "LASwift maps vector and matrix operations onto LAPACK, BLAS and vDSP calls from Accelerate, so multiply, inversion and decompositions run in Apple's tuned routines. Operations without a direct Accelerate call, such as column-wise reductions, fall back to slower paths.",
+  "use_it_when": [
+    "Porting Matlab or hmatrix-style code to Swift where matrix multiply and solves dominate"
+  ],
+  "skip_it_when": [
+    "Column-wise reductions, which were about 19 times slower than NumPy",
+    "Projects that need a maintained dependency or current Swift performance data"
+  ],
+  "caveats": [
+    "Swift 3.0.2 era numbers; the compiler and Accelerate have changed a great deal since",
+    "No hardware stated",
+    "Transpose result of 11e9 ns is implausible next to the other columns",
+    "Baselines are other languages' libraries, not Swift loops"
+  ],
+  "tradeoffs": [
+    "Matlab-style API with its own Vector and Matrix types",
+    "Apple platforms only (Accelerate)"
+  ],
+  "evidence": [
+    {
+      "url": "https://github.com/Alexander-Ignatyev/linalg-benchmarks/blob/d2abf7695d7452752d6f86acfa7bdb6b721c4d40/README.md",
+      "quote": "* LASwift: 0.1.2 (Apple Swift 3.0.2)"
+    },
+    {
+      "url": "https://github.com/Alexander-Ignatyev/linalg-benchmarks/blob/d2abf7695d7452752d6f86acfa7bdb6b721c4d40/README.md",
+      "quote": "6. Matrix (1000x1000 <> 1000x1000) multiply."
+    },
+    {
+      "url": "https://github.com/Alexander-Ignatyev/linalg-benchmarks/blob/d2abf7695d7452752d6f86acfa7bdb6b721c4d40/README.md",
+      "quote": "| 2. Invert matrix | 84.85 ms  | 84.74 ms | 57.00 ms | 364.49 ms | 39 ms |"
+    },
+    {
+      "url": "https://github.com/Alexander-Ignatyev/linalg-benchmarks/blob/d2abf7695d7452752d6f86acfa7bdb6b721c4d40/README.md",
+      "quote": "| 6. Matrix multiply | 32.78 ms | 37.01 ms | 36.38 ms | 185.65 ms | 30 ms |"
+    },
+    {
+      "url": "https://github.com/Alexander-Ignatyev/linalg-benchmarks/blob/d2abf7695d7452752d6f86acfa7bdb6b721c4d40/README.md",
+      "quote": "| 10. sum by columns | 14.690 ms (0.539 ms) | 0.692 ms | 1.049 ms | | 13 ms |"
+    },
+    {
+      "url": "https://github.com/Alexander-Ignatyev/linalg-benchmarks/blob/d2abf7695d7452752d6f86acfa7bdb6b721c4d40/README.md",
+      "quote": "| 5. Matrix transpose | 41.80 ns | 262.0 ns | 22,860 ns | 0.65 ns | 11e9 ns |"
+    },
+    {
+      "url": "https://github.com/AlexanderTar/LASwift/blob/b0bdd4869e8aa2de37414b0cc2c4b739225b643f/README.md",
+      "quote": "LASwift is using high-performant calculations provided by LAPACK, BLAS and vDSP through Apple Accelerate framework."
+    }
+  ],
+  "checked": "2026-10-28"
+}

@@ -1,0 +1,53 @@
+[
+  {"slug": "data-formats", "title": "Data formats", "categories": [
+    {"slug": "json", "title": "JSON", "default": "Foundation's JSONDecoder, JSONEncoder and JSONSerialization"},
+    {"slug": "binary-serialization", "title": "Binary serialization", "default": "Codable with JSONEncoder or PropertyListEncoder as the wire or disk format"},
+    {"slug": "xml-and-html", "title": "XML and HTML", "default": "Foundation's XMLParser, and SwiftSoup for HTML"},
+    {"slug": "base64-and-encoding", "title": "Base64 and encoding", "default": "Foundation's base64EncodedString and Data(base64Encoded:)"},
+    {"slug": "markdown", "title": "Markdown", "default": "The common Markdown parsers and renderers"}]},
+  {"slug": "collections", "title": "Collections", "categories": [
+    {"slug": "deques-and-queues", "title": "Deques and queues", "default": "Array used as a FIFO queue"},
+    {"slug": "ordered-and-sorted", "title": "Ordered and sorted collections", "default": "An Array and a Set kept in sync, NSOrderedSet, or a sorted Array with binary-search insertion"},
+    {"slug": "persistent-and-tree", "title": "Persistent and tree collections", "default": "Dictionary and Set when copies get mutated"},
+    {"slug": "heaps-and-bitsets", "title": "Heaps and bit sets", "default": "Re-sorting an Array for its minimum or maximum, and Set<Int> for dense integers"},
+    {"slug": "diffing", "title": "Diffing", "default": "The standard library's difference(from:), reloadData, and diffable data sources"},
+    {"slug": "sorting-and-searching", "title": "Sorting and searching", "default": "Array.sort, sorted().prefix(k), and firstIndex(of:)"}]},
+  {"slug": "concurrency-and-runtime", "title": "Concurrency and runtime", "categories": [
+    {"slug": "locks-and-atomics", "title": "Locks and atomics", "default": "NSLock, a serial DispatchQueue with sync, or an actor used as a lock"},
+    {"slug": "reactive-streams", "title": "Reactive streams", "default": "Combine"},
+    {"slug": "logging", "title": "Logging", "default": "print and NSLog"}]},
+  {"slug": "crypto-and-hashing", "title": "Crypto and hashing", "categories": [
+    {"slug": "crypto-hashes-and-ciphers", "title": "Cryptographic hashes and ciphers", "default": "CryptoKit and CommonCrypto"},
+    {"slug": "non-crypto-hashes", "title": "Non-cryptographic hashes", "default": "Swift's Hasher (SipHash) and hashValue"},
+    {"slug": "random-numbers", "title": "Random numbers", "default": "SystemRandomNumberGenerator"}]},
+  {"slug": "compression", "title": "Compression", "categories": [
+    {"slug": "general-compression", "title": "General-purpose compression", "default": "zlib, through the Compression framework or NSData.compressed(using:)"},
+    {"slug": "archives", "title": "ZIP archives", "default": "The common ZIP libraries"}]},
+  {"slug": "storage", "title": "Storage", "categories": [
+    {"slug": "sqlite-and-orms", "title": "SQLite and object stores", "default": "Core Data and SwiftData"},
+    {"slug": "caches-and-key-value", "title": "Caches and key-value stores", "default": "UserDefaults, NSCache, NSKeyedArchiver and plain file writes"}]},
+  {"slug": "images-and-media", "title": "Images and media", "categories": [
+    {"slug": "image-loading", "title": "Image loading", "default": "AsyncImage, or URLSession and UIImage(data:)"},
+    {"slug": "image-codecs", "title": "Image codecs", "default": "ImageIO and UIImage(data:)"},
+    {"slug": "resizing-and-processing", "title": "Resizing and processing", "default": "UIGraphicsImageRenderer and UIImage.draw(in:)"},
+    {"slug": "animated-images", "title": "Animated images", "default": "UIImage.animatedImage(with:) and UIImageView's animationImages"}]},
+  {"slug": "ui-and-rendering", "title": "UI and rendering", "categories": [
+    {"slug": "layout", "title": "Layout", "default": "Auto Layout, UIStackView and SwiftUI stacks"},
+    {"slug": "lists-and-scrolling", "title": "Lists and scrolling", "default": "UITableView, UICollectionView, and SwiftUI List or LazyVStack"},
+    {"slug": "text-rendering", "title": "Text rendering", "default": "UILabel, UITextView, TextKit and SwiftUI Text"},
+    {"slug": "animation-and-vector", "title": "Animation and vector graphics", "default": "Lottie's main-thread engine and hand-rolled Core Animation"}]},
+  {"slug": "text-processing", "title": "Text processing", "categories": [
+    {"slug": "regex", "title": "Regular expressions", "default": "Swift Regex"},
+    {"slug": "parsing-and-strings", "title": "Parsing and strings", "default": "String APIs and Scanner"},
+    {"slug": "dates-and-numbers", "title": "Dates and numbers", "default": "DateFormatter, ISO8601DateFormatter and NumberFormatter"}]},
+  {"slug": "server-and-networking", "title": "Server and networking", "categories": [
+    {"slug": "web-frameworks", "title": "Web frameworks", "default": "Vapor"},
+    {"slug": "database-drivers", "title": "Database drivers", "default": "Fluent and the common Swift drivers"}]},
+  {"slug": "ml-and-numerics", "title": "ML and numerics", "categories": [
+    {"slug": "on-device-inference", "title": "On-device inference", "default": "Core ML"},
+    {"slug": "linear-algebra-and-dsp", "title": "Linear algebra and DSP", "default": "Plain Swift loops over arrays"}]},
+  {"slug": "tooling", "title": "Build and tooling", "categories": [
+    {"slug": "build-and-caching", "title": "Build systems and caching", "default": "xcodebuild with no cache"},
+    {"slug": "linkers", "title": "Linkers", "default": "ld64, and ld-prime since Xcode 15"},
+    {"slug": "developer-tools", "title": "Developer tools", "default": "xcpretty and the usual formatters and linters"}]}
+]

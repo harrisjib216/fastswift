@@ -1,0 +1,79 @@
+{
+  "id": "https://github.com/wendylabsinc/swift-json-schema",
+  "name": "swift-json-schema (generated SwiftJSON ObjectView decoding)",
+  "domain": "data-formats",
+  "category": "json",
+  "baseline": "Foundation JSONDecoder after the swift-foundation rewrite (Apple M4 Max)",
+  "verdict": "downgrade",
+  "verdict_reason": "Its generated non-Codable path beats Foundation on small (2,083 ns vs 4,335 ns) and medium (6,335 ns vs 9,423 ns) payloads. On the large payload its own table shows 560 µs against Foundation's 408 µs, so the post's statement that it matches Foundation there is not supported.",
+  "evidence_tier": "C",
+  "tier_reason": "First-party forum post with the hardware stated, but no OS, Swift version or benchmark source location.",
+  "claimed_speedup": "p50: small 2,083 ns vs 4,335 ns (2.1x faster), medium 6,335 ns vs 9,423 ns (1.5x faster), large 560 µs vs 408 µs (1.4x slower) (ratios derived from page data); allocations 3 vs 15 (small)",
+  "workload": "Decoding a 4-field object, a 10-field object with nesting, and 100 nested objects into generated Swift structs via typed accessors on a JSONObjectView over Span<UInt8>",
+  "metric": "time (p50 wall clock) and allocations",
+  "hardware": "Apple M4 Max",
+  "os": "",
+  "toolchain": "",
+  "benchmark_date": "2026-06-10",
+  "benchmark_url": "https://forums.swift.org/t/swift-json-schema-an-efficient-codable-alternative/87268",
+  "repo_url": "https://github.com/wendylabsinc/swift-json-schema",
+  "docs_url": null,
+  "license": null,
+  "usability": "reference",
+  "language": "Swift",
+  "platforms": "",
+  "install": "Swift Package Manager (build tool plugin)",
+  "maintenance_status": "active",
+  "stars": 20,
+  "last_commit": "2026-07-19",
+  "one_liner": "Build plugin that generates structs plus zero-copy JSON initializers; 1.5-2x faster than JSONDecoder on small inputs, slower on large ones.",
+  "how_it_is_fast": "A SwiftPM build plugin generates Swift types from .schema.json files, plus initializers that read each field straight from an IkigaJSON index over a Span<UInt8> with typed per-key accessors. That skips the Decoder protocol, CodingKey matching and Any boxing, and cuts allocations to a few per document.",
+  "use_it_when": [
+    "Small and medium payloads described by a JSON Schema, on hot request paths",
+    "Allocation-sensitive server code"
+  ],
+  "skip_it_when": [
+    "Large documents: 560 µs vs Foundation's 408 µs in the author's table",
+    "No JSON Schema for your payloads"
+  ],
+  "caveats": [
+    "First-party; no OS, Swift version or benchmark code location given in the post.",
+    "No license detected on the repository: study only.",
+    "The post's prose says the large-payload case matches Foundation's throughput; its table shows it about 37% slower."
+  ],
+  "tradeoffs": [
+    "Requires JSON Schema files and a build plugin",
+    "Fast path depends on IkigaJSON"
+  ],
+  "evidence": [
+    {
+      "url": "https://forums.swift.org/t/swift-json-schema-an-efficient-codable-alternative/87268",
+      "quote": "Benchmarked on Apple M4-Max (p50 wall-clock, using the"
+    },
+    {
+      "url": "https://forums.swift.org/t/swift-json-schema-an-efficient-codable-alternative/87268",
+      "quote": "4,335 ns · 15 allocs"
+    },
+    {
+      "url": "https://forums.swift.org/t/swift-json-schema-an-efficient-codable-alternative/87268",
+      "quote": "2,083 ns · 3 allocs"
+    },
+    {
+      "url": "https://forums.swift.org/t/swift-json-schema-an-efficient-codable-alternative/87268",
+      "quote": "9,423 ns · 33 allocs"
+    },
+    {
+      "url": "https://forums.swift.org/t/swift-json-schema-an-efficient-codable-alternative/87268",
+      "quote": "6,335 ns · 9 allocs"
+    },
+    {
+      "url": "https://forums.swift.org/t/swift-json-schema-an-efficient-codable-alternative/87268",
+      "quote": "408 µs · 1,752 allocs"
+    },
+    {
+      "url": "https://forums.swift.org/t/swift-json-schema-an-efficient-codable-alternative/87268",
+      "quote": "560 µs · 913 allocs"
+    }
+  ],
+  "checked": "2026-10-28"
+}

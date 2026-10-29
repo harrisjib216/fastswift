@@ -1,0 +1,63 @@
+{
+  "id": "apple:compression#lzraven",
+  "name": "Compression framework (LZRAVEN)",
+  "domain": "compression",
+  "category": "general-compression",
+  "baseline": "Compression framework COMPRESSION_LZMA (NSData.compressed(using: .lzma))",
+  "verdict": "confirm",
+  "verdict_reason": "Apple states LZRAVEN decodes 3x faster than LZMA on Apple silicon at a slightly better ratio. It is new in OS 27, no independent numbers exist, and nothing contradicts the claim.",
+  "evidence_tier": "C",
+  "tier_reason": "First-party documentation claim with no data set, device or method given.",
+  "claimed_speedup": "Decodes 3x faster than COMPRESSION_LZMA on Apple silicon; encodes faster than LZMA (no number given)",
+  "workload": "Not stated",
+  "metric": "throughput",
+  "hardware": "Apple silicon (model not stated)",
+  "os": "iOS 27 / macOS 27 family",
+  "toolchain": "",
+  "benchmark_date": "2026",
+  "benchmark_url": "https://developer.apple.com/documentation/compression/compression_lzraven",
+  "repo_url": null,
+  "docs_url": "https://developer.apple.com/documentation/compression/compression_lzraven",
+  "license": "Apple SDK",
+  "usability": "platform",
+  "language": "C",
+  "platforms": "iOS 27+, iPadOS 27+, macOS 27+, tvOS 27+, watchOS 27+, visionOS 27+",
+  "install": "built into OS 27 releases (Compression framework, buffer API only)",
+  "maintenance_status": "active",
+  "stars": null,
+  "last_commit": "",
+  "one_liner": "Apple's OS 27 high-ratio codec, documented as decoding 3x faster than LZMA at a similar or slightly better ratio.",
+  "how_it_is_fast": "Apple describes LZ77 with an 8 MB dictionary, context-modeled entropy coding and near-optimal parsing, with a decoder that uses vector units to process several symbols per operation. LZMA's range decoder handles one bit at a time with serial dependencies, which limits its decode speed.",
+  "use_it_when": [
+    "Apple-only payloads compressed once and decoded often, where LZMA's ratio is wanted but its decode time is too slow",
+    "OS 27 minimum deployment targets"
+  ],
+  "skip_it_when": [
+    "Data that must be readable by xz tools or non-Apple platforms",
+    "Streaming input: buffer API only",
+    "Devices on OS versions before 27"
+  ],
+  "caveats": [
+    "No published benchmark data, corpus or device",
+    "LZMA is not the default most apps use; compare against zlib or LZFSE if that is your current choice"
+  ],
+  "tradeoffs": [
+    "Requires OS 27 on every decoding device",
+    "Buffer API only"
+  ],
+  "evidence": [
+    {
+      "url": "https://developer.apple.com/tutorials/data/documentation/compression/compression_lzraven.json",
+      "quote": "while decoding 3x faster on Apple silicon, where the decoder leverages vector units to process multiple symbols per operation."
+    },
+    {
+      "url": "https://developer.apple.com/tutorials/data/documentation/compression/compression_lzraven.json",
+      "quote": "LZRAVEN uses an 8 MB dictionary and encodes faster than"
+    },
+    {
+      "url": "https://developer.apple.com/tutorials/data/documentation/compression/compression_lzraven.json",
+      "quote": "algorithm is available in version 27 or later of Apple operating systems."
+    }
+  ],
+  "checked": "2026-10-28"
+}

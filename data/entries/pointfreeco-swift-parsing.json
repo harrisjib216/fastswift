@@ -1,0 +1,124 @@
+{
+  "id": "https://github.com/pointfreeco/swift-parsing",
+  "name": "swift-parsing (UTF8View parsers vs Scanner)",
+  "domain": "text-processing",
+  "category": "parsing-and-strings",
+  "baseline": "Foundation Scanner and hand-written String.split parsing",
+  "verdict": "downgrade",
+  "verdict_reason": "Against Scanner the claim holds: the UTF-8 parser is 9.4x faster on the README example and 3.3x faster on comma-separated integers. Against hand-written split code it does not hold at the Substring level: the README's own current table shows ad hoc split parsing (2,459 ns) beating the Substring parser (2,834 ns), contradicting its 'more than twice as slow' text, and split matches the Int parser on bulk numbers.",
+  "evidence_tier": "A",
+  "tier_reason": "Public benchmark executable (make benchmarks runs swift run -c release), hardware stated in the README; Swift version not stated.",
+  "claimed_speedup": "M1 Pro: README example, Scanner 12084 ns vs UTF8 parser 1291 ns (9.4x, derived from page data) and Substring parser 2834 ns (4.3x, derived from page data); ad hoc split 2459 ns. Comma-separated Ints: Scanner 50654458.5 ns vs Int.parser 15364583 ns (3.3x, derived from page data) vs String.split 15452542 ns. PrefixUpTo: UTF8 40417 ns vs String.range(of:) 49792 ns vs Scanner 53959 ns. README prose claims Scanner is 'more than 5 times' slower than the Substring parser and 'more than 15 times' slower than the UTF-8 parser.",
+  "workload": "Small CSV-like user records; long comma-separated lists of Int and Double; prefix search; Bool parsing.",
+  "metric": "time",
+  "hardware": "MacBook Pro (16-inch, 2021), Apple M1 Pro, 32 GB",
+  "os": "",
+  "toolchain": "swift run -c release (Makefile); Swift version not stated, table updated in the Swift 5.8 support commit",
+  "benchmark_date": "2023-03",
+  "benchmark_url": "https://github.com/pointfreeco/swift-parsing#benchmarks",
+  "repo_url": "https://github.com/pointfreeco/swift-parsing",
+  "docs_url": null,
+  "license": "MIT",
+  "usability": "copyable",
+  "language": "Swift",
+  "platforms": "iOS 13+, macOS 10.15+, tvOS 13+, watchOS 6+, Linux",
+  "install": "Swift Package Manager",
+  "maintenance_status": "active",
+  "stars": 1000,
+  "last_commit": "2026-09-02",
+  "one_liner": "Composable parser library; its UTF-8 parsers beat Foundation Scanner 3x-9x, but Substring parsers do not beat hand-written split code.",
+  "how_it_is_fast": "Parsers are generic over the input view, so a parser can run directly on Substring.UTF8View bytes instead of Characters, avoiding grapheme breaking. Small parsers compose into one specialized type that the optimizer inlines. Scanner bridges to NSString and works through a heavier object API.",
+  "use_it_when": [
+    "Replacing Scanner-based parsers in hot paths",
+    "Formats you can parse at the UTF-8 byte level and that benefit from composable, testable parsers"
+  ],
+  "skip_it_when": [
+    "Simple delimiter splitting, where String.split is as fast or faster",
+    "JSON: the same table shows its JSON parser 21x slower than JSONSerialization (38,167 ns vs 1,792 ns)",
+    "Debug builds, where generic composition is far slower"
+  ],
+  "caveats": [
+    "Table rows were updated at different times (most in March 2023; the Date row in July 2023), so they are not one run.",
+    "Swift version and macOS version not stated; numbers predate Swift 5.9 and the 2023 Swift Foundation rewrite.",
+    "The prose ratios in the README (5x, 15x, 'twice as slow') come from an older run and do not match the current table."
+  ],
+  "tradeoffs": [
+    "Heavy use of generics and result builders can lengthen compile times.",
+    "Byte-level parsers need care with non-ASCII input."
+  ],
+  "evidence": [
+    {
+      "url": "https://github.com/pointfreeco/swift-parsing/blob/main/README.md",
+      "quote": "Apple M1 Pro (10 cores, 8 performance and 2 efficiency)"
+    },
+    {
+      "url": "https://github.com/pointfreeco/swift-parsing/blob/main/README.md",
+      "quote": "MacBook Pro (16-inch, 2021)"
+    },
+    {
+      "url": "https://github.com/pointfreeco/swift-parsing/blob/main/README.md",
+      "quote": "32 GB (LPDDR5)"
+    },
+    {
+      "url": "https://github.com/pointfreeco/swift-parsing/blob/main/README.md",
+      "quote": "README Example.Parser: Substring                 2834.000 ns ±  12.87 %     488264"
+    },
+    {
+      "url": "https://github.com/pointfreeco/swift-parsing/blob/main/README.md",
+      "quote": "README Example.Parser: UTF8                      1291.000 ns ±  22.65 %    1000000"
+    },
+    {
+      "url": "https://github.com/pointfreeco/swift-parsing/blob/main/README.md",
+      "quote": "README Example.Ad hoc                            2459.000 ns ±  20.61 %     561930"
+    },
+    {
+      "url": "https://github.com/pointfreeco/swift-parsing/blob/main/README.md",
+      "quote": "README Example.Scanner                          12084.000 ns ±   5.53 %     115388"
+    },
+    {
+      "url": "https://github.com/pointfreeco/swift-parsing/blob/main/README.md",
+      "quote": "Numerics.Comma separated: Int.parser         15364583.000 ns ±   0.63 %         91"
+    },
+    {
+      "url": "https://github.com/pointfreeco/swift-parsing/blob/main/README.md",
+      "quote": "Numerics.Comma separated: Scanner.scanInt    50654458.500 ns ±   0.30 %         28"
+    },
+    {
+      "url": "https://github.com/pointfreeco/swift-parsing/blob/main/README.md",
+      "quote": "Numerics.Comma separated: String.split       15452542.000 ns ±   1.30 %         90"
+    },
+    {
+      "url": "https://github.com/pointfreeco/swift-parsing/blob/main/README.md",
+      "quote": "PrefixUpTo.Parser: UTF8                         40417.000 ns ±   2.71 %      34379"
+    },
+    {
+      "url": "https://github.com/pointfreeco/swift-parsing/blob/main/README.md",
+      "quote": "PrefixUpTo.String.range(of:)                    49792.000 ns ±   2.70 %      27891"
+    },
+    {
+      "url": "https://github.com/pointfreeco/swift-parsing/blob/main/README.md",
+      "quote": "PrefixUpTo.Scanner.scanUpToString               53959.000 ns ±   3.87 %      25745"
+    },
+    {
+      "url": "https://github.com/pointfreeco/swift-parsing/blob/main/README.md",
+      "quote": "JSON.Parser                                     38167.000 ns ±   3.26 %      36423"
+    },
+    {
+      "url": "https://github.com/pointfreeco/swift-parsing/blob/main/README.md",
+      "quote": "JSON.JSONSerialization                           1792.000 ns ±  54.14 %     753770"
+    },
+    {
+      "url": "https://github.com/pointfreeco/swift-parsing/blob/main/README.md",
+      "quote": "the `.split`-style of parsing is more than twice as slow"
+    },
+    {
+      "url": "https://github.com/pointfreeco/swift-parsing/blob/main/README.md",
+      "quote": "However, the `Scanner` style of parsing is more than 5 times as slow as the substring parser written above, and more than 15 times slower than the UTF-8 parser:"
+    },
+    {
+      "url": "https://github.com/pointfreeco/swift-parsing/blob/main/Makefile",
+      "quote": "swift run -c release swift-parsing-benchmark"
+    }
+  ],
+  "checked": "2026-10-28"
+}

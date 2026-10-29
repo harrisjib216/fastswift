@@ -1,0 +1,74 @@
+{
+  "id": "https://github.com/rive-app/rive-ios",
+  "name": "Rive (rive-ios, vs Lottie)",
+  "domain": "ui-and-rendering",
+  "category": "animation-and-vector",
+  "baseline": "lottie-ios with its Core Animation rendering engine (the iOS default since Lottie 4.0)",
+  "verdict": "reject",
+  "verdict_reason": "The widely cited numbers (Rive near 60 FPS vs Lottie at 17 FPS) come from a React Native app on a 2014 Android phone, not from lottie-ios. In the same test Rive used more total memory. Rive's own Apple documentation warns that app-only profiling is not a fair comparison against Core Animation-based Lottie. No iOS speed comparison was found.",
+  "evidence_tier": "B",
+  "tier_reason": "Third-party (Callstack) benchmark with numbers and a named device, but on Android through React Native.",
+  "claimed_speedup": "Callstack, Android: Rive almost 60 FPS vs Lottie 17 FPS; total memory Lottie 246 MB vs Rive 276 MB (Rive used more). No iOS numbers.",
+  "workload": "Same onboarding animation exported for Lottie and Rive, played in a React Native app with dev mode off.",
+  "metric": "FPS, memory",
+  "hardware": "Sony Xperia Z3 (Android)",
+  "os": "Android (version not stated)",
+  "toolchain": "React Native, dev mode disabled",
+  "benchmark_date": "2023-01-11",
+  "benchmark_url": "https://callstack.com/blog/lottie-vs-rive-optimizing-mobile-app-animation",
+  "repo_url": "https://github.com/rive-app/rive-ios",
+  "docs_url": null,
+  "license": "MIT",
+  "usability": "copyable",
+  "language": "Swift + C++",
+  "platforms": "iOS 14+, macOS 13.1+, tvOS 16+, visionOS 1+, Mac Catalyst 14+",
+  "install": "Swift Package Manager, CocoaPods",
+  "maintenance_status": "active",
+  "stars": 855,
+  "last_commit": "2026-10-28",
+  "one_liner": "Rive's iOS runtime draws vector animations with Metal; the faster-than-Lottie numbers in circulation come from Android, not iOS.",
+  "how_it_is_fast": "Rive files are a compact binary format played by a C++ runtime that renders with Metal inside the app process. Lottie on iOS instead builds Core Animation layers that the system render server plays, so the costs land in different processes and are hard to compare.",
+  "use_it_when": [
+    "Interactive, state-machine-driven animations that Lottie cannot express",
+    "Reducing animation asset size, which Rive's blog says is often 10-15x smaller than Lottie JSON"
+  ],
+  "skip_it_when": [
+    "Choosing Rive over lottie-ios for speed on iOS without measuring app plus backboardd on target devices"
+  ],
+  "caveats": [
+    "Numbers are from Android through React Native on a 2014 phone and use Lottie's Android player.",
+    "On iOS, Lottie's Core Animation engine shows near 0% CPU in the app process because playback runs in the render server.",
+    "Rive's blog comparison is first-party and discusses file size, not iOS frame times."
+  ],
+  "tradeoffs": [
+    "Metal rendering and memory appear in the app process.",
+    "Requires the Rive editor and file format instead of After Effects exports."
+  ],
+  "evidence": [
+    {
+      "url": "https://callstack.com/blog/lottie-vs-rive-optimizing-mobile-app-animation",
+      "quote": "The results show that the Rive animation runs almost at 60FPS whereas Lottie runs at 17FPS."
+    },
+    {
+      "url": "https://callstack.com/blog/lottie-vs-rive-optimizing-mobile-app-animation",
+      "quote": "The total memory consumption of Lottie is 246 MB and Rive is 276 MB."
+    },
+    {
+      "url": "https://callstack.com/blog/lottie-vs-rive-optimizing-mobile-app-animation",
+      "quote": "We benchmarked this on a Sony Xperia Z3 model using an Android profiler and Perf monitor that is shipped with the React Native app."
+    },
+    {
+      "url": "https://rive.app/docs/runtimes/apple/resource-usage.md",
+      "quote": "Since Rive uses Metal directly, CPU usage and memory allocations appear in the app process."
+    },
+    {
+      "url": "https://rive.app/blog/rive-as-a-lottie-alternative",
+      "quote": "CPU usage often shows as 0% in profiling tools because it offloads animation playback to the render server, a separate system process."
+    },
+    {
+      "url": "https://rive.app/blog/rive-as-a-lottie-alternative",
+      "quote": "Rive files are often 10 to 15 times smaller than equivalent Lottie JSON files."
+    }
+  ],
+  "checked": "2026-10-28"
+}

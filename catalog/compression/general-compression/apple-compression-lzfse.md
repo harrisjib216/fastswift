@@ -1,0 +1,85 @@
+# Compression framework (LZFSE)
+
+<sub>[fastswift](../../../README.md) › [Catalog](../../README.md) › [Compression](../README.md) › [General-purpose compression](README.md)</sub>
+
+**Tier A** (reproducible public benchmark) · ✅ Holds up · Ships with Apple's SDKs · `C` · `Apple SDK` · 🟢 active
+
+> Apple's LZFSE matches zlib's ratio while compressing 3.4x and decompressing 2.3x faster in an independent benchmark.
+
+| | |
+|---|---|
+| **Beats** | Compression framework COMPRESSION_ZLIB (zlib level 5) and NSData.compressed(using: .zlib) |
+| **Claimed result** | Apple: 2x to 3x faster for both encoding and decoding at zlib's ratio. lzbench: 91.1 MB/s vs 26.8 MB/s compression (3.4x) and 732 MB/s vs 314 MB/s decompression (2.3x) against zlib 1.3.2 -6, ratio 31.91% vs 32.19% (derived from page data) |
+| **Workload** | Silesia corpus (silesia.tar, 212 MB), single thread, whole-file compress and decompress |
+| **Metric** | throughput |
+| **Hardware** | AMD EPYC 9555P at 3.20 GHz, turbo off, single thread |
+| **OS** | Ubuntu 26.04 |
+| **Toolchain** | lzbench 2.4 built with gcc 15.2.0 |
+| **Measured** | 2026 |
+| **Platforms** | iOS 9+, macOS 10.11+, tvOS 9+, watchOS 2+, visionOS 1+ |
+| **Install** | built into iOS 9+ / macOS 10.11+ (Compression framework; NSData.compressed(using: .lzfse) on iOS 13+ / macOS 10.15+) |
+| **Links** | [documentation](https://developer.apple.com/documentation/compression/compression_lzfse) · [benchmark](https://github.com/inikep/lzbench) |
+
+## Verdict
+
+Apple claims zlib-level ratio at 2x to 3x the speed. An independent lzbench run of the open-source LZFSE reference shows 3.4x faster compression and 2.3x faster decompression than zlib -6 at almost the same ratio.
+
+**Why tier A:** Independent lzbench run with public code, CPU, compiler and corpus stated, matching Apple's first-party claim.
+
+## Use it when
+
+- Data that is compressed and decompressed only on Apple devices
+- You want zlib's ratio with less CPU time and energy
+- Streaming is needed (unlike LZMESH, LZFSE works with the stream API)
+
+## Skip it when
+
+- The other side is a server, browser or non-Apple client that expects gzip/zlib
+- Targeting iOS 27 / macOS 27 or later only: Apple now recommends LZMESH for new Apple-only code
+
+## How it is fast
+
+LZFSE pairs an LZ77 match finder with Finite State Entropy coding, a table-driven form of asymmetric numeral systems that decodes symbols with table lookups and shifts instead of Huffman bit-by-bit decoding. Its encoder is tuned for speed at a ratio near zlib level 5. Apple also describes it as more energy-efficient than zlib.
+
+## What it costs
+
+- Format is effectively Apple-only; the reference decoder exists but is rarely installed elsewhere
+- Lower ratio than LZMA or zstd at higher levels
+
+## Problems with the evidence
+
+- lzbench measures the 2017 open-source LZFSE reference on x86 Linux, not the tuned build inside Apple's OS on Apple silicon
+- lzbench compares stock zlib -6; Apple's COMPRESSION_ZLIB is its own level-5 implementation with a decoder Apple optimized
+- Apple's 2x to 3x claim gives no data set or hardware
+- The lzbench author has contributed to zstd; he has no stake in LZFSE or zlib
+
+## Evidence
+
+<details>
+<summary>6 quotes from the sources, checked 2026-10-28</summary>
+
+> while running 2x to 3x faster for both encoding and decoding
+>
+> — [developer.apple.com/tutorials/data/documentation/compression/compre…](https://developer.apple.com/tutorials/data/documentation/compression/compression_lzfse.json)
+
+> | lzfse 2017-03-08 | 91.1 MB/s | 732 MB/s | 67624281 | 31.91 |
+>
+> — [github.com/inikep/lzbench](https://github.com/inikep/lzbench)
+
+> | zlib 1.3.2 -6 | 26.8 MB/s | 314 MB/s | 68228431 | 32.19 |
+>
+> — [github.com/inikep/lzbench](https://github.com/inikep/lzbench)
+
+> The tests were run on a single thread of an AMD EPYC 9555P processor at 3.20 GHz
+>
+> — [github.com/inikep/lzbench](https://github.com/inikep/lzbench)
+
+> built with `gcc 15.2.0`
+>
+> — [github.com/inikep/lzbench](https://github.com/inikep/lzbench)
+
+> It targets similar compression rates at higher compression and decompression speed compared to deflate using zlib.
+>
+> — [github.com/lzfse/lzfse](https://github.com/lzfse/lzfse)
+
+</details>

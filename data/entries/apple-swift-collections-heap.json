@@ -1,0 +1,61 @@
+{
+  "id": "https://github.com/apple/swift-collections#heap",
+  "name": "swift-collections (Heap)",
+  "domain": "collections",
+  "category": "heaps-and-bitsets",
+  "baseline": "Re-sorting an Array (or scanning it with min()/max()) to get the smallest or largest element",
+  "verdict": "downgrade",
+  "verdict_reason": "The documentation publishes only absolute per-operation timings for Heap itself, as a chart image, with no comparison against sorting an Array or against another priority queue. The advantage over re-sorting follows from O(log n) versus O(n log n) complexity, but no published number measures it.",
+  "evidence_tier": "D",
+  "tier_reason": "Numbers exist only in a chart image with no baseline series; text gives complexities and the test machine.",
+  "claimed_speedup": "No comparative numbers. Documented complexity is O(log n) insert and removal and O(1) min and max; the chart of absolute per-element times was generated in release mode on a 16-inch 2019 MacBook Pro with a 2.3 GHz 8-Core Intel Core i9.",
+  "workload": "Heap<Int>: init from range, insert, insert(contentsOf:), popMin, popMax; 1 to 1M elements (chart).",
+  "metric": "time",
+  "hardware": "MacBook Pro (16-inch, 2019), 2.3 GHz 8-core Intel Core i9",
+  "os": "",
+  "toolchain": "Release mode; Swift version not stated",
+  "benchmark_date": "2021-08",
+  "benchmark_url": "https://github.com/apple/swift-collections/blob/main/Documentation/Heap.md",
+  "repo_url": "https://github.com/apple/swift-collections",
+  "docs_url": null,
+  "license": "Apache-2.0",
+  "usability": "copyable",
+  "language": "Swift",
+  "platforms": "All Swift platforms: iOS, macOS, tvOS, watchOS, visionOS, Linux, Windows",
+  "install": "Swift Package Manager (HeapModule, swift-collections 1.1+)",
+  "maintenance_status": "active",
+  "stars": 4527,
+  "last_commit": "2026-10-27",
+  "one_liner": "Apple's array-backed min-max heap for priority queues; O(log n) push and pop instead of re-sorting an Array.",
+  "how_it_is_fast": "Heap is an implicit min-max heap stored in a single contiguous array: even levels are min levels, odd levels are max levels. Insert and removal walk one root-to-leaf path, so they cost O(log n), and both the minimum and the maximum are readable in O(1).",
+  "use_it_when": [
+    "Priority queues, schedulers, Dijkstra or A* open sets",
+    "Code that appends and then re-sorts an Array, or calls min() on every step, to pull the next item",
+    "You need both ends: popMin and popMax on one structure"
+  ],
+  "skip_it_when": [
+    "You need all elements in sorted order once: a single sort() is simpler and usually faster",
+    "Very small queues where a linear min() scan is already cheap",
+    "You need stable ordering among equal priorities: heaps do not preserve insertion order"
+  ],
+  "caveats": [
+    "Numbers exist only in a chart image (Documentation/Images/Heap Performance.png) with no comparison series.",
+    "Measured in 2021 on an Intel MacBook Pro; Swift version not stated.",
+    "The PR history shows reference benchmarks against CFBinaryHeap and std::priority_queue were added to the benchmark suite, but their results are not published in text."
+  ],
+  "tradeoffs": [
+    "Not a Sequence: iteration order is not sorted unless you pop elements",
+    "Min-max levels make each operation do a little more comparison work than a plain binary heap"
+  ],
+  "evidence": [
+    {
+      "url": "https://github.com/apple/swift-collections/blob/main/Documentation/Heap.md",
+      "quote": "| Insert | O(log n) | | Get smallest element | O(1) | | Get largest element | O(1) | | Remove smallest element | O(log n) | | Remove largest element | O(log n) |"
+    },
+    {
+      "url": "https://github.com/apple/swift-collections/blob/main/Documentation/Heap.md",
+      "quote": "The above graph was generated in release mode on a MacBook Pro (16-inch, 2019) with a 2.3 GHz 8-Core Intel Core i9 using the benchmarks defined in the `swift-collections-benchmark` target."
+    }
+  ],
+  "checked": "2026-10-28"
+}

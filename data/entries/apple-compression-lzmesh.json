@@ -1,0 +1,66 @@
+{
+  "id": "apple:compression#lzmesh",
+  "name": "Compression framework (LZMESH)",
+  "domain": "compression",
+  "category": "general-compression",
+  "baseline": "Compression framework COMPRESSION_ZLIB and COMPRESSION_LZFSE",
+  "verdict": "confirm",
+  "verdict_reason": "Apple states LZMESH decodes 3.5x faster than zlib on Apple silicon with a better ratio than zlib and LZFSE. No independent measurement exists yet for this OS 27 algorithm, and nothing contradicts the claim.",
+  "evidence_tier": "C",
+  "tier_reason": "First-party documentation claim with no data set, device or method given.",
+  "claimed_speedup": "Decodes 3.5x faster than COMPRESSION_ZLIB on Apple silicon; encodes significantly faster than zlib or LZFSE (no number given)",
+  "workload": "Not stated",
+  "metric": "throughput",
+  "hardware": "Apple silicon (model not stated)",
+  "os": "iOS 27 / macOS 27 family",
+  "toolchain": "",
+  "benchmark_date": "2026",
+  "benchmark_url": "https://developer.apple.com/documentation/compression/compression_lzmesh",
+  "repo_url": null,
+  "docs_url": "https://developer.apple.com/documentation/compression/compression_lzmesh",
+  "license": "Apple SDK",
+  "usability": "platform",
+  "language": "C",
+  "platforms": "iOS 27+, iPadOS 27+, macOS 27+, tvOS 27+, watchOS 27+, visionOS 27+",
+  "install": "built into OS 27 releases (Compression framework, buffer API only)",
+  "maintenance_status": "active",
+  "stars": null,
+  "last_commit": "",
+  "one_liner": "Apple's OS 27 general-purpose codec, documented as decoding 3.5x faster than zlib with a better ratio than zlib or LZFSE.",
+  "how_it_is_fast": "Apple describes LZ77 matching with length-limited Huffman coding and a lazy match parser. Length-limited codes allow small, fixed decode tables, and the decoder needs only 64 KB of scratch memory. Apple positions it as the replacement for both LZFSE and zlib on its platforms.",
+  "use_it_when": [
+    "Apple-only payloads with an OS 27 minimum deployment target",
+    "In-memory buffers where decode speed matters (assets, caches)"
+  ],
+  "skip_it_when": [
+    "Streaming input: LZMESH is buffer API only",
+    "Any reader on an older OS or a non-Apple platform"
+  ],
+  "caveats": [
+    "No published benchmark data, corpus or device; documentation claim only",
+    "Brand-new format; no third-party implementations or measurements yet"
+  ],
+  "tradeoffs": [
+    "Requires OS 27 on every device that decodes the data",
+    "Buffer API only, no compression_stream support"
+  ],
+  "evidence": [
+    {
+      "url": "https://developer.apple.com/tutorials/data/documentation/compression/compression_lzmesh.json",
+      "quote": "LZMESH decodes 3.5x faster than"
+    },
+    {
+      "url": "https://developer.apple.com/tutorials/data/documentation/compression/compression_lzmesh.json",
+      "quote": "while encoding significantly faster than either."
+    },
+    {
+      "url": "https://developer.apple.com/tutorials/data/documentation/compression/compression_lzmesh.json",
+      "quote": "The decoder requires only 64 KB of scratch memory, making it well suited for memory-constrained environments."
+    },
+    {
+      "url": "https://developer.apple.com/tutorials/data/documentation/compression/compression_lzmesh.json",
+      "quote": "algorithm is available in version 27 or later of Apple operating systems."
+    }
+  ],
+  "checked": "2026-10-28"
+}

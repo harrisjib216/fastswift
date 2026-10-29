@@ -1,0 +1,58 @@
+{
+  "id": "https://github.com/flipboard/flanimatedimage",
+  "name": "FLAnimatedImage",
+  "domain": "images-and-media",
+  "category": "animated-images",
+  "baseline": "UIImage.animatedImage(with:duration:) or UIImageView animationImages holding every decoded frame",
+  "verdict": "downgrade",
+  "verdict_reason": "Flipboard's 2014 post explains why the UIKit approach uses so much memory, with a worked example of a 1 MB GIF expanding to 55 MB of bitmaps, but publishes no measurement of FLAnimatedImage against it. The design is sound, yet the claim has never been measured in public and the project has had no commits since 2022.",
+  "evidence_tier": "D",
+  "tier_reason": "No measured comparison; the only number is an arithmetic estimate of the baseline's memory cost.",
+  "claimed_speedup": "No measured speedup. Baseline cost example: 'A 1MB GIF for example turns into 55MB of uncompressed data! (800x600 pixels * 4 bytes per pixel for RGBA * 30 frames)'.",
+  "workload": "Playing several animated GIFs at once in a feed (described, not measured).",
+  "metric": "memory",
+  "hardware": "",
+  "os": "",
+  "toolchain": "",
+  "benchmark_date": "2014-05",
+  "benchmark_url": "https://engineering.flipboard.com/2014/05/animated-gif",
+  "repo_url": "https://github.com/Flipboard/FLAnimatedImage",
+  "docs_url": null,
+  "license": "MIT",
+  "usability": "copyable",
+  "language": "Objective-C",
+  "platforms": "iOS",
+  "install": "CocoaPods, Carthage, Swift Package Manager",
+  "maintenance_status": "abandoned",
+  "stars": 7940,
+  "last_commit": "2022-07-27",
+  "one_liner": "GIF player that decodes frames just in time instead of holding all of them; its memory savings were never published as measurements.",
+  "how_it_is_fast": "FLAnimatedImage decodes frames on a background queue shortly before they are shown and sizes its frame cache to the GIF and to memory conditions: small GIFs stay fully decoded, large ones buffer a few frames ahead. On memory warnings it drops buffered frames and decodes on demand, instead of keeping every decoded frame alive as animationImages does.",
+  "use_it_when": [
+    "Maintaining an app that already uses it for GIFs"
+  ],
+  "skip_it_when": [
+    "Formats other than GIF, such as APNG or animated WebP",
+    "New code that can use ImageIO's CGAnimateImageAtURLWithBlock (iOS 13+) or a maintained loader with animated image views"
+  ],
+  "caveats": [
+    "No benchmark numbers; the 55 MB figure is arithmetic, not a measurement",
+    "Written for iOS 7 in 2014",
+    "No independent comparison found"
+  ],
+  "tradeoffs": [
+    "Objective-C, GIF only",
+    "Re-decoding frames for large GIFs trades memory for CPU"
+  ],
+  "evidence": [
+    {
+      "url": "https://engineering.flipboard.com/2014/05/animated-gif",
+      "quote": "A 1MB GIF for example turns into 55MB of uncompressed data! (800x600 pixels * 4 bytes per pixel for RGBA * 30 frames)"
+    },
+    {
+      "url": "https://engineering.flipboard.com/2014/05/animated-gif",
+      "quote": "but only using a fraction of the memory."
+    }
+  ],
+  "checked": "2026-10-28"
+}

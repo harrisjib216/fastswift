@@ -1,0 +1,64 @@
+{
+  "id": "apple:foundation#date-formatstyle",
+  "name": "Date.FormatStyle (Swift Foundation, macOS 14 / iOS 17)",
+  "domain": "text-processing",
+  "category": "dates-and-numbers",
+  "baseline": "Date.FormatStyle on macOS 13 / iOS 16 (Objective-C Foundation)",
+  "verdict": "confirm",
+  "verdict_reason": "Apple reports a 150% improvement in one date-and-time template formatting benchmark after moving FormatStyle to Swift Foundation. No contradicting data was found; a 2026 open PR measuring a further Swift pattern formatter against ICU (1.3x-3.3x) suggests ICU is still on the path and more gains remain.",
+  "evidence_tier": "C",
+  "tier_reason": "First-party WWDC statement about a single benchmark with no workload detail or hardware.",
+  "claimed_speedup": "'a massive 150% improvement in a benchmark of formatting with a standard date and time template'. Unmerged follow-up, ICU vs Swift pattern filling: date-format-style 1,007 ns vs 573 ns (1.76x).",
+  "workload": "Format a Date with a standard date and time template.",
+  "metric": "throughput",
+  "hardware": "",
+  "os": "macOS 14 / iOS 17 vs macOS 13 / iOS 16",
+  "toolchain": "",
+  "benchmark_date": "2023-06",
+  "benchmark_url": "https://developer.apple.com/videos/play/wwdc2023/10164/",
+  "repo_url": null,
+  "docs_url": "https://developer.apple.com/documentation/foundation/date/formatstyle",
+  "license": "Apple SDK",
+  "usability": "platform",
+  "language": "Swift",
+  "platforms": "iOS 17+, macOS 14+",
+  "install": "built into iOS 17+ and macOS 14+",
+  "maintenance_status": "active",
+  "stars": null,
+  "last_commit": "",
+  "one_liner": "Apple reports a 150% speedup for Date.FormatStyle template formatting after Foundation's Swift rewrite in macOS 14 and iOS 17.",
+  "how_it_is_fast": "The Swift rewrite of Foundation removed Objective-C bridging and intermediate allocations from FormatStyle. ICU still fills in the date pattern; an open swift-foundation PR moves that step into Swift as well.",
+  "use_it_when": [
+    "Formatting dates for display on iOS 17+ and macOS 14+, instead of building DateFormatter instances"
+  ],
+  "skip_it_when": [
+    "Deployment targets below iOS 17 / macOS 14, where the old implementation runs"
+  ],
+  "caveats": [
+    "'150% improvement' is ambiguous (2.5x throughput or 1.5x) and covers one benchmark.",
+    "No hardware, method or code published with the WWDC claim.",
+    "The 1.76x Swift pattern formatter figure is from an open PR (October 2026) behind a build flag, not shipping code."
+  ],
+  "tradeoffs": [
+    "None to adopt beyond the OS requirement."
+  ],
+  "evidence": [
+    {
+      "url": "https://developer.apple.com/videos/play/wwdc2023/10164/",
+      "quote": "Date formatting using FormatStyle also gained some major performance upgrades, showing a massive 150% improvement in a benchmark of formatting with a standard date and time template."
+    },
+    {
+      "url": "https://api.github.com/repos/swiftlang/swift-foundation/pulls/2330",
+      "quote": "| date-format-style | 1,007 | 573 | 1.76 |"
+    },
+    {
+      "url": "https://api.github.com/repos/swiftlang/swift-foundation/pulls/2330",
+      "quote": "| date-format-verbatim-long | 1,479 | 446 | 3.32 |"
+    },
+    {
+      "url": "https://api.github.com/repos/swiftlang/swift-foundation/pulls/2330",
+      "quote": "| date-format-fresh-style | 1,433 | 1,093 | 1.31 |"
+    }
+  ],
+  "checked": "2026-10-28"
+}

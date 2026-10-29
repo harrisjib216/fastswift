@@ -1,0 +1,84 @@
+{
+  "id": "apple:coreml#stateful-models",
+  "name": "Core ML stateful models (KV cache as model state)",
+  "domain": "ml-and-numerics",
+  "category": "on-device-inference",
+  "baseline": "Core ML LLM with the key-value cache passed as model inputs and outputs (the pre-macOS 15 / iOS 18 pattern)",
+  "verdict": "confirm",
+  "verdict_reason": "Apple measured about 13x faster decoding at a 2048-token context for Llama 3.1 8B on an M1 Max, and Argmax independently measured a 45% latency cut for the Whisper decoder on the M3 Neural Engine. The gain is much smaller at short contexts, where copying the cache costs little.",
+  "evidence_tier": "B",
+  "tier_reason": "Apple's numbers are first-party, and Argmax, a separate company, published an independent measurement of the same feature in its WhisperKit paper.",
+  "claimed_speedup": "~13 times faster decode at 2048 context: 16.26 tokens/s vs 1.25 tokens/s (Llama-3.1-8B-Instruct, M1 Max); with block-wise int4 weights added, ~33 tokens/s vs 0.19 tokens/s for the naive export; independent: 45% lower Whisper Large v3 Turbo decoder latency (8.4 ms →4.6 ms on M3 ANE)",
+  "workload": "Llama-3.1-8B-Instruct on the GPU, 7-token prompt and about 100 generated tokens, context sizes 128 to 8192; Whisper Large v3 Turbo text-decoder forward pass on the Neural Engine.",
+  "metric": "throughput (decode tokens/s) and latency",
+  "hardware": "Mac with M1 Max (Apple); MacBook Pro with M3 Max (Argmax)",
+  "os": "macOS Sequoia 15.2 beta",
+  "toolchain": "Core ML Tools conversion; Swift runner using Core ML's MLTensor APIs",
+  "benchmark_date": "2024-11-01",
+  "benchmark_url": "https://machinelearning.apple.com/research/core-ml-on-device-llama",
+  "repo_url": null,
+  "docs_url": "https://developer.apple.com/documentation/coreml/mlstate",
+  "license": "Apple SDK",
+  "usability": "platform",
+  "language": "Swift",
+  "platforms": "iOS 18+, macOS 15+, tvOS 18+, watchOS 11+, visionOS 2+",
+  "install": "built into iOS 18+ and macOS 15+",
+  "maintenance_status": "active",
+  "stars": null,
+  "last_commit": "",
+  "one_liner": "Core ML states keep an LLM's KV cache inside the model, decoding about 13x faster than passing the cache as inputs at 2K context.",
+  "how_it_is_fast": "With states, the key-value cache tensors live inside the model and are updated in place during prediction instead of being copied out as outputs and back in as inputs on every token. For an 8B model the cache can reach about 1 GB at 8K context, so removing the copies removes most of the per-token overhead.",
+  "use_it_when": [
+    "Autoregressive decoders (LLMs, Whisper text decoders) deployed through Core ML",
+    "Long contexts, where the cache copy dominates per-token time"
+  ],
+  "skip_it_when": [
+    "Apps that must run on iOS 17 / macOS 14 or earlier",
+    "Very short contexts, where the I/O cache costs little",
+    "Stateless models such as encoders and classifiers"
+  ],
+  "caveats": [
+    "Apple's numbers come from a macOS 15.2 beta on one M1 Max",
+    "Whether the update happens in place depends on the compute backend and the surrounding operations",
+    "The ~33 tokens/s figure also includes fused attention and int4 quantization, not just state"
+  ],
+  "tradeoffs": [
+    "Models must be re-exported with state inputs",
+    "Raises the minimum OS to iOS 18 / macOS 15"
+  ],
+  "evidence": [
+    {
+      "url": "https://machinelearning.apple.com/research/core-ml-on-device-llama",
+      "quote": "In this example we use Llama-3.1-8B-Instruct, a popular mid-size LLM"
+    },
+    {
+      "url": "https://machinelearning.apple.com/research/core-ml-on-device-llama",
+      "quote": "throughput: 1.25 tokens/s"
+    },
+    {
+      "url": "https://machinelearning.apple.com/research/core-ml-on-device-llama",
+      "quote": "throughput: 16.26 tokens/s"
+    },
+    {
+      "url": "https://machinelearning.apple.com/research/core-ml-on-device-llama",
+      "quote": "We now see that the performance is improved ~13 times, compared to key-value cache as I/O for 2048 context size."
+    },
+    {
+      "url": "https://machinelearning.apple.com/research/core-ml-on-device-llama",
+      "quote": "throughput: 0.19 tokens/s"
+    },
+    {
+      "url": "https://machinelearning.apple.com/research/core-ml-on-device-llama",
+      "quote": "this model can be run locally on a Mac with M1 Max with about ~33 tokens/s decoding speed"
+    },
+    {
+      "url": "https://machinelearning.apple.com/research/core-ml-on-device-llama",
+      "quote": "using a Mac with M1 Max running macOS Sequoia 15.2 Beta"
+    },
+    {
+      "url": "https://arxiv.org/html/2507.10860",
+      "quote": "This leads to a 45% latency reduction (8.4 ms →4.6 ms on M3 ANE) for the Whisper Large v3 Turbo Text Decoder forward pass compared to our previous implementation that passed the key-value cache as input tensors to the model."
+    }
+  ],
+  "checked": "2026-10-28"
+}

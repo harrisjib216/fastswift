@@ -1,0 +1,68 @@
+{
+  "id": "https://github.com/path/fastimagecache",
+  "name": "Fast Image Cache",
+  "domain": "images-and-media",
+  "category": "image-loading",
+  "baseline": "Loading individual JPEG files with UIImage(contentsOfFile:) and letting Core Animation decode them on the main thread",
+  "verdict": "downgrade",
+  "verdict_reason": "Path's demo measured ~59 FPS against ~35 FPS while scrolling, but on the iOS 7 platform the README describes, where third-party apps got only a software JPEG decoder and no background-decoding API. Current iOS offers UIImage.preparingForDisplay() and ImageIO thumbnails, and the library has had no commits since 2016, so the baseline it beat is no longer today's.",
+  "evidence_tier": "C",
+  "tier_reason": "First-party demo app in the repository; device, OS version and build configuration are not stated.",
+  "claimed_speedup": "Scrolling ~59FPS vs ~35FPS for the conventional method; extra memory 0.09MB vs 1.34MB above baseline; at the cost of 2.2MB vs 568KB on disk.",
+  "workload": "Scrolling a table of JPEG thumbnails in the bundled demo app; RPRVT measured for one screen of thumbnails.",
+  "metric": "frame rate, memory",
+  "hardware": "",
+  "os": "",
+  "toolchain": "",
+  "benchmark_date": "",
+  "benchmark_url": "https://github.com/path/FastImageCache#statistics",
+  "repo_url": "https://github.com/path/FastImageCache",
+  "docs_url": null,
+  "license": "MIT",
+  "usability": "copyable",
+  "language": "Objective-C",
+  "platforms": "iOS 6+",
+  "install": "CocoaPods, Carthage",
+  "maintenance_status": "abandoned",
+  "stars": 8047,
+  "last_commit": "2016-09-13",
+  "one_liner": "Stores pre-decoded, byte-aligned thumbnails in memory-mapped image tables; 59 vs 35 FPS scrolling on iOS 7-era hardware.",
+  "how_it_is_fast": "Images of one format are decoded once into uncompressed, correctly aligned bitmaps and stored together in a memory-mapped 'image table' file. Displaying one wraps the mapped bytes in a CGImage that Core Animation can use without copying or decoding, so scrolling does no JPEG work on the main thread.",
+  "use_it_when": [
+    "Maintaining an older app that already uses it for many same-sized thumbnails"
+  ],
+  "skip_it_when": [
+    "New code: use UIImage.preparingForDisplay() or byPreparingThumbnail(ofSize:) (iOS 15+) or an image loader that decodes off the main thread",
+    "Images that do not share a small set of fixed sizes",
+    "Disk space matters: the demo used about 4x the disk of the source JPEGs"
+  ],
+  "caveats": [
+    "Measured in the iOS 7 era (README: 'As of iOS 7'); device not named",
+    "A single run of the demo app, with no build configuration stated",
+    "Baseline decodes on the main thread; any modern loader that decodes in the background would close much of the gap"
+  ],
+  "tradeoffs": [
+    "About 4x the disk usage of the compressed images",
+    "Every image format must declare fixed pixel dimensions and style up front",
+    "Objective-C only and unmaintained"
+  ],
+  "evidence": [
+    {
+      "url": "https://github.com/path/FastImageCache/blob/master/README.md",
+      "quote": "| Conventional | `~35FPS` | `568KB` | `2.40MB`: `1.06MB` + `1.34MB` |"
+    },
+    {
+      "url": "https://github.com/path/FastImageCache/blob/master/README.md",
+      "quote": "| Fast Image Cache | `~59FPS` | `2.2MB` | `1.15MB`: `1.06MB` + `0.09MB` |"
+    },
+    {
+      "url": "https://github.com/path/FastImageCache/blob/master/README.md",
+      "quote": "The takeaway is that Fast Image Cache sacrifices disk usage to achieve a faster framerate and overall less memory usage."
+    },
+    {
+      "url": "https://github.com/path/FastImageCache/blob/master/README.md",
+      "quote": "As of iOS 7, Apple does not make their hardware JPEG decoder available for third-party applications to use. As a result, only a slower, software decoder is used for this step."
+    }
+  ],
+  "checked": "2026-10-28"
+}

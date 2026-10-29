@@ -1,0 +1,58 @@
+{
+  "id": "https://github.com/jounce/surge",
+  "name": "Surge",
+  "domain": "ml-and-numerics",
+  "category": "linear-algebra-and-dsp",
+  "baseline": "Plain Swift loops over [Double] and [Float]",
+  "verdict": "downgrade",
+  "verdict_reason": "Surge publishes no numbers, only that it is nearly as fast as calling Accelerate directly, and its own README warns that plain loops can win on small data. Any gain is Accelerate's, and a 2025 forum re-test found vDSP only matches an optimized Swift loop on simple element-wise arithmetic. The project has had no commits since July 2023.",
+  "evidence_tier": "D",
+  "tier_reason": "Directional claim only; the repository has XCTest benchmark targets but publishes no results.",
+  "claimed_speedup": "No numbers published; claims to be nearly as fast, in most cases, as using Accelerate directly",
+  "workload": "Not stated.",
+  "metric": "time",
+  "hardware": "",
+  "os": "",
+  "toolchain": "",
+  "benchmark_date": "",
+  "benchmark_url": "https://github.com/Jounce/Surge/blob/ac638794d4b02377e3628c1c8b1e07c2a15f1d52/README.md",
+  "repo_url": "https://github.com/Jounce/Surge",
+  "docs_url": null,
+  "license": "MIT",
+  "usability": "copyable",
+  "language": "Swift",
+  "platforms": "iOS, macOS, tvOS, watchOS",
+  "install": "Swift Package Manager, CocoaPods, Carthage",
+  "maintenance_status": "abandoned",
+  "stars": 5326,
+  "last_commit": "2023-07-20",
+  "one_liner": "Swift wrappers over Accelerate's vDSP, vForce and BLAS; claims near-Accelerate speed but publishes no numbers against plain loops.",
+  "how_it_is_fast": "Surge is a thin layer of Swift functions and operators over vDSP, vForce, BLAS and LAPACK, so its speed is Accelerate's minus wrapper overhead. It adds matrix and vector types with operator overloads.",
+  "use_it_when": [
+    "Older codebases that already depend on it and want Accelerate behind operator syntax"
+  ],
+  "skip_it_when": [
+    "New code: Apple's own Swift vDSP and vForce overlays (iOS 13+, macOS 10.15+) cover the same ground",
+    "Small arrays, where its README says conventional loops can be faster",
+    "Projects that need maintained dependencies"
+  ],
+  "caveats": [
+    "No published benchmark numbers at all",
+    "Last release 2.3.0 in November 2019; last commit July 2023"
+  ],
+  "tradeoffs": [
+    "Extra dependency over APIs Apple now ships in Swift form",
+    "Apple platforms only"
+  ],
+  "evidence": [
+    {
+      "url": "https://github.com/Jounce/Surge/blob/ac638794d4b02377e3628c1c8b1e07c2a15f1d52/README.md",
+      "quote": "Surge aims to bring Accelerate to the mainstream, making it as easy (and nearly as fast, in most cases) to perform computation over a set of numbers as for a single member."
+    },
+    {
+      "url": "https://github.com/Jounce/Surge/blob/ac638794d4b02377e3628c1c8b1e07c2a15f1d52/README.md",
+      "quote": "Under certain conditions, such as performing simple calculations over a small data set, Accelerate can be out-performed by conventional algorithms."
+    }
+  ],
+  "checked": "2026-10-28"
+}

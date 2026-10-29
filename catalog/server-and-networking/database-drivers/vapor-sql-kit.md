@@ -1,0 +1,154 @@
+# SQLKit query builder (in Vapor, on PostgresKit)
+
+<sub>[fastswift](../../../README.md) › [Catalog](../../README.md) › [Server and networking](../README.md) › [Database drivers](README.md)</sub>
+
+**Tier A** (reproducible public benchmark) · ✅ Holds up · Open source · `Swift` · `MIT` · 🟢 active
+
+> SQLKit's typed SQL builder in Vapor, measured at about 1.6-2.1x Fluent's throughput in TechEmpower Rounds 20 and 22.
+
+| | |
+|---|---|
+| **Beats** | Fluent ORM with fluent-postgres-driver (Model.find on req.db) in the same Vapor 4 app |
+| **Claimed result** | TechEmpower single query: Round 23 126,228 vs Fluent 27,561 req/s (4.58x), Round 22 53,097 vs 32,756 (1.62x), Round 20 60,165 vs 36,989 (1.63x). Multiple queries, 20 per request: Round 23 12,988 vs 533 req/s (24.35x), Round 22 4,048 vs 1,964 (2.06x), Round 20 4,211 vs 2,341 (1.80x). (derived from page data: totalRequests per 15-second run, single query at peak concurrency 1893413 vs 413408, 796458 vs 491334, 902479 vs 554834; 20 queries 194825 vs 8000, 60716 vs 29463, 63158 vs 35117) |
+| **Workload** | TechEmpower single-query test (fetch one random row of the 10,000-row World table and return it as JSON, 16 to 512 connections, peak shown) and multiple-queries test (20 sequential random-row fetches per request) against PostgreSQL on a separate server; both Vapor apps share the same HTTP layer. |
+| **Metric** | throughput |
+| **Hardware** | Round 23: three HPE ProLiant DL360 Gen10 Plus servers, Intel Xeon Gold 6330 (56 cores), 64 GB, 40 Gbps Ethernet. Round 22 and earlier: three Dell R440 servers, Intel Xeon Gold 5120, 32 GB, 10 Gbps Ethernet (TechEmpower "Citrine" environment) |
+| **OS** | Linux, in Docker (official swift slim images) |
+| **Toolchain** | Round 23: Swift 5.10, swift build -c release -Xswiftc -enforce-exclusivity=unchecked; Round 22: Swift 5.7 (SwiftNIO entry Swift 5.6), same flags |
+| **Measured** | 2025-02-24 |
+| **Adoption** | 294 stars |
+| **Last commit** | 2026-07-17 |
+| **Platforms** | macOS 10.15+, iOS 13+, tvOS 13+, watchOS 6+, Linux |
+| **Install** | Swift Package Manager |
+| **Links** | [repository](https://github.com/vapor/sql-kit) · [benchmark](https://www.techempower.com/benchmarks/#section=data-r23&hw=ph&test=db) |
+
+## Verdict
+
+SQLKit's query builder kept most of raw SQL's lead over Fluent in all three rounds: 1.6x on single queries and 1.8-2.1x at 20 queries per request in Rounds 20 and 22, and far more in Round 23, where Fluent's multi-query result collapsed.
+
+**Why tier A:** TechEmpower runs the tests itself on stated hardware and publishes every implementation's source and Dockerfile, including the Swift version and build flags.
+
+## Use it when
+
+- You want composable, injection-safe queries without writing SQL strings, and Fluent model decoding is a measurable cost.
+- Read-heavy endpoints that fetch many rows or issue many queries per request.
+
+## Skip it when
+
+- CRUD code that relies on Fluent migrations, relations, eager loading or model events.
+- When the database round trip dominates; the gain is in Swift-side decoding, not the query itself.
+
+## How it is fast
+
+SQLKit builds the SELECT with a fluent builder but sends it straight to the PostgresKit connection and decodes the row with Decodable into a plain struct. It skips Fluent's model layer (property wrappers, field tracking, model lifecycle), which is where the extra per-row work goes.
+
+## What it costs
+
+- No migrations, relations or model lifecycle; decoding is plain Decodable.
+- Dialect differences still leak through for database-specific SQL.
+
+## Problems with the evidence
+
+- TechEmpower endpoints are deliberately trivial, so these numbers measure framework and driver overhead, not the throughput of a real application.
+- Requests per second are computed from totalRequests divided by the 15-second duration in TechEmpower's raw results file; the interactive results page draws the same values as charts rendered by JavaScript.
+- The TechEmpower FrameworkBenchmarks repository was archived in March 2026, so Round 23 (published 2025-02-24) is the last official round. No Swift 6.x results exist.
+- Round 23 Fluent numbers look anomalous: at 20 queries per request its average latency was 932 ms against 34-39 ms for the raw SQL entries, a collapse not seen in Rounds 20 and 22, and the cause is not documented. Treat the 24-28x Round 23 multi-query gap as an outlier and the 1.6-2.2x of earlier rounds as typical.
+- The Fluent entry configures its pool through app.databases.use(.postgres(...)) while the raw entries build an EventLoopGroupConnectionPool by hand; both use the same maxConnectionsPerEventLoop, but other driver defaults may differ.
+- Package.swift files pin only minimum versions (vapor from 4.52.2, fluent from 4.4.0, postgres-kit from 2.4.0), so each round used whatever releases were current at build time.
+- Swift 5.10 (Round 23) and Swift 5.7 (Round 22) with -enforce-exclusivity=unchecked; Round 20 toolchain not recorded in the results file.
+- SQLKit was slightly slower than the hand-written PostgresKit entry in every round (about 0.86-0.93x), so it gives up a little of raw SQL's gain for the builder API.
+
+## Evidence
+
+<details>
+<summary>22 quotes from the sources, checked 2026-10-28</summary>
+
+> "vapor-sql-kit": [ { "latencyAvg": "2.69ms", "latencyStdev": "305.03us", "latencyMax": "4.02ms", "totalRequests": 88872, "startTime": 1738299342, "endTime": 1738299358 }, { "latencyAvg": "2.63ms", "latencyStdev": "341.49us", "latencyMax": "4.41ms", "totalRequests": 182066, "startTime": 1738299360, "endTime": 1738299375 }, { "latencyAvg": "1.58ms", "latencyStdev": "342.00us", "latencyMax": "3.76ms"…
+>
+> — [techempower.com/benchmarks/results/round23/ph.json](https://www.techempower.com/benchmarks/results/round23/ph.json)
+
+> "vapor-fluent": [ { "latencyAvg": "3.36ms", "latencyStdev": "358.33us", "latencyMax": "6.43ms", "totalRequests": 71358, "startTime": 1738300988, "endTime": 1738301003 }, { "latencyAvg": "2.89ms", "latencyStdev": "448.21us", "latencyMax": "7.63ms", "totalRequests": 165961, "startTime": 1738301005, "endTime": 1738301020 }, { "latencyAvg": "4.22ms", "latencyStdev": "2.09ms", "latencyMax": "28.30ms", …
+>
+> — [techempower.com/benchmarks/results/round23/ph.json](https://www.techempower.com/benchmarks/results/round23/ph.json)
+
+> "vapor-sql-kit": [ { "latencyAvg": "4.59ms", "latencyStdev": "2.02ms", "latencyMax": "42.62ms", "totalRequests": 1676851, "startTime": 1738299476, "endTime": 1738299491 }, { "latencyAvg": "11.89ms", "latencyStdev": "3.39ms", "latencyMax": "64.46ms", "totalRequests": 639558, "startTime": 1738299493, "endTime": 1738299508 }, { "latencyAvg": "20.91ms", "latencyStdev": "4.78ms", "latencyMax": "55.32ms…
+>
+> — [techempower.com/benchmarks/results/round23/ph.json](https://www.techempower.com/benchmarks/results/round23/ph.json)
+
+> "vapor-fluent": [ { "latencyAvg": "18.75ms", "latencyStdev": "4.05ms", "latencyMax": "54.27ms", "totalRequests": 405243, "startTime": 1738301121, "endTime": 1738301136 }, { "latencyAvg": "227.28ms", "latencyStdev": "21.68ms", "latencyMax": "308.61ms", "totalRequests": 33210, "startTime": 1738301138, "endTime": 1738301153 }, { "latencyAvg": "481.56ms", "latencyStdev": "37.46ms", "latencyMax": "591.…
+>
+> — [techempower.com/benchmarks/results/round23/ph.json](https://www.techempower.com/benchmarks/results/round23/ph.json)
+
+> "vapor-sql-kit": [ { "latencyAvg": "0.90ms", "latencyStdev": "70.47us", "latencyMax": "2.39ms", "totalRequests": 264164, "startTime": 1697548869, "endTime": 1697548884 }, { "latencyAvg": "0.95ms", "latencyStdev": "81.33us", "latencyMax": "5.00ms", "totalRequests": 439303, "startTime": 1697548886, "endTime": 1697548901 }, { "latencyAvg": "1.20ms", "latencyStdev": "254.19us", "latencyMax": "13.88ms"…
+>
+> — [techempower.com/benchmarks/results/round22/ph.json](https://www.techempower.com/benchmarks/results/round22/ph.json)
+
+> "vapor-fluent": [ { "latencyAvg": "1.17ms", "latencyStdev": "68.40us", "latencyMax": "2.59ms", "totalRequests": 203941, "startTime": 1697546904, "endTime": 1697546919 }, { "latencyAvg": "1.21ms", "latencyStdev": "105.03us", "latencyMax": "4.67ms", "totalRequests": 344899, "startTime": 1697546921, "endTime": 1697546936 }, { "latencyAvg": "1.81ms", "latencyStdev": "562.18us", "latencyMax": "11.93ms"…
+>
+> — [techempower.com/benchmarks/results/round22/ph.json](https://www.techempower.com/benchmarks/results/round22/ph.json)
+
+> "vapor-sql-kit": [ { "latencyAvg": "10.36ms", "latencyStdev": "5.24ms", "latencyMax": "177.91ms", "totalRequests": 744988, "startTime": 1697549002, "endTime": 1697549017 }, { "latencyAvg": "33.11ms", "latencyStdev": "8.58ms", "latencyMax": "272.02ms", "totalRequests": 227655, "startTime": 1697549019, "endTime": 1697549034 }, { "latencyAvg": "63.63ms", "latencyStdev": "14.77ms", "latencyMax": "298.…
+>
+> — [techempower.com/benchmarks/results/round22/ph.json](https://www.techempower.com/benchmarks/results/round22/ph.json)
+
+> "vapor-fluent": [ { "latencyAvg": "16.51ms", "latencyStdev": "1.38ms", "latencyMax": "34.22ms", "totalRequests": 459461, "startTime": 1697547037, "endTime": 1697547052 }, { "latencyAvg": "66.30ms", "latencyStdev": "2.98ms", "latencyMax": "270.00ms", "totalRequests": 113900, "startTime": 1697547054, "endTime": 1697547069 }, { "latencyAvg": "129.12ms", "latencyStdev": "3.87ms", "latencyMax": "149.52…
+>
+> — [techempower.com/benchmarks/results/round22/ph.json](https://www.techempower.com/benchmarks/results/round22/ph.json)
+
+> "vapor-sql-kit":[{"latencyAvg":"554.77us","latencyMax":"1.56ms","latencyStdev":"37.62us","totalRequests":432951,"startTime":1609698612,"endTime":1609698627},{"latencyAvg":"628.30us","latencyMax":"4.89ms","latencyStdev":"57.95us","totalRequests":669769,"startTime":1609698629,"endTime":1609698644},{"latencyAvg":"0.94ms","latencyMax":"20.92ms","latencyStdev":"279.95us","totalRequests":901958,"startTi…
+>
+> — [techempower.com/benchmarks/results/round20/ph.json](https://www.techempower.com/benchmarks/results/round20/ph.json)
+
+> "vapor-fluent":[{"latencyAvg":"807.75us","latencyMax":"2.11ms","latencyStdev":"72.20us","totalRequests":297597,"startTime":1609697426,"endTime":1609697441},{"latencyAvg":"0.93ms","latencyMax":"5.79ms","latencyStdev":"92.72us","totalRequests":452209,"startTime":1609697443,"endTime":1609697458},{"latencyAvg":"1.53ms","latencyMax":"21.67ms","latencyStdev":"234.90us","totalRequests":550205,"startTime"…
+>
+> — [techempower.com/benchmarks/results/round20/ph.json](https://www.techempower.com/benchmarks/results/round20/ph.json)
+
+> "vapor-sql-kit":[{"latencyAvg":"10.43ms","latencyMax":"240.40ms","latencyStdev":"5.43ms","totalRequests":737350,"startTime":1609698745,"endTime":1609698760},{"latencyAvg":"33.23ms","latencyMax":"543.80ms","latencyStdev":"21.03ms","totalRequests":234258,"startTime":1609698762,"endTime":1609698777},{"latencyAvg":"62.30ms","latencyMax":"686.32ms","latencyStdev":"32.15ms","totalRequests":123441,"start…
+>
+> — [techempower.com/benchmarks/results/round20/ph.json](https://www.techempower.com/benchmarks/results/round20/ph.json)
+
+> "vapor-fluent":[{"latencyAvg":"15.94ms","latencyMax":"327.48ms","latencyStdev":"8.68ms","totalRequests":483819,"startTime":1609697560,"endTime":1609697575},{"latencyAvg":"60.09ms","latencyMax":"948.52ms","latencyStdev":"48.91ms","totalRequests":133804,"startTime":1609697577,"endTime":1609697592},{"latencyAvg":"115.44ms","latencyMax":"1.24s","latencyStdev":"81.03ms","totalRequests":68935,"startTime…
+>
+> — [techempower.com/benchmarks/results/round20/ph.json](https://www.techempower.com/benchmarks/results/round20/ph.json)
+
+> Round 23 results are in: https://tfb-status.techempower.com/results/91a66052-9d86-446c-b31a-eadbd669ed08
+>
+> — [github.com/TechEmpower/FrameworkBenchmarks/issues/9589](https://github.com/TechEmpower/FrameworkBenchmarks/issues/9589)
+
+> "uuid": "91a66052-9d86-446c-b31a-eadbd669ed08", "name": "Continuous Benchmarking Run 2025-01-30 18:47:41"
+>
+> — [techempower.com/benchmarks/results/round23/ph.json](https://www.techempower.com/benchmarks/results/round23/ph.json)
+
+> "duration": 15, "rawData": {
+>
+> — [techempower.com/benchmarks/results/round23/ph.json](https://www.techempower.com/benchmarks/results/round23/ph.json)
+
+> "queryIntervals": [ 1, 5, 10, 15, 20 ]
+>
+> — [techempower.com/benchmarks/results/round23/ph.json](https://www.techempower.com/benchmarks/results/round23/ph.json)
+
+> Round 22 is composed of: Run ID: 66d86090-b6d0-46b3-9752-5aa4913b2e33 on our Citrine environment.
+>
+> — [techempower.com/blog/2023/11/15/framework-benchmarks-round-22/](https://www.techempower.com/blog/2023/11/15/framework-benchmarks-round-22/)
+
+> "uuid": "66d86090-b6d0-46b3-9752-5aa4913b2e33", "name": "Continuous Benchmarking Run 2023-10-11 08:00:48"
+>
+> — [techempower.com/benchmarks/results/round22/ph.json](https://www.techempower.com/benchmarks/results/round22/ph.json)
+
+> "duration": 15, "rawData": {
+>
+> — [techempower.com/benchmarks/results/round22/ph.json](https://www.techempower.com/benchmarks/results/round22/ph.json)
+
+> "queryIntervals": [ 1, 5, 10, 15, 20 ]
+>
+> — [techempower.com/benchmarks/results/round22/ph.json](https://www.techempower.com/benchmarks/results/round22/ph.json)
+
+> {"name":"Round 20 Citrine","completionTime":1609731273863,"duration":15,
+>
+> — [techempower.com/benchmarks/results/round20/ph.json](https://www.techempower.com/benchmarks/results/round20/ph.json)
+
+> "queryIntervals":[1,5,10,15,20]
+>
+> — [techempower.com/benchmarks/results/round20/ph.json](https://www.techempower.com/benchmarks/results/round20/ph.json)
+
+</details>

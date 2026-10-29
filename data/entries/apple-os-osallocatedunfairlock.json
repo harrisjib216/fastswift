@@ -1,0 +1,81 @@
+{
+  "id": "apple:os#osallocatedunfairlock",
+  "name": "OSAllocatedUnfairLock (os framework)",
+  "domain": "concurrency-and-runtime",
+  "category": "locks-and-atomics",
+  "baseline": "NSLock",
+  "verdict": "downgrade",
+  "verdict_reason": "The underlying os_unfair_lock is about 1.4x faster than pthread_mutex (which NSLock wraps) when uncontended, but the one published contended test found OSAllocatedUnfairLock 1.75x slower than NSLock. The win holds for uncontended access only.",
+  "evidence_tier": "B",
+  "tier_reason": "Independent forum measurement with the workload described, but no hardware, build settings or code for the timed variant.",
+  "claimed_speedup": "Under contention it was slower: ~3.5 s vs ~2 s for NSLock (1.75x slower, derived from page data) for 100M increments from 10 parallel tasks; uncontended, the underlying os_unfair_lock took 0.12 s vs 0.172 s for pthread_mutex over 10 million cycles (1.4x faster, derived, 2019)",
+  "workload": "10 tasks in parallel, each incrementing one shared Int 10 million times (100M increments in total) behind NSLock, OSAllocatedUnfairLock, an atomic, or an actor; a single-thread run of the same work took about 0.1 s",
+  "metric": "time",
+  "hardware": "",
+  "os": "",
+  "toolchain": "",
+  "benchmark_date": "2024-04-20",
+  "benchmark_url": "https://forums.swift.org/t/se-0433-mutex-vs-actor-general-advice/71338",
+  "repo_url": null,
+  "docs_url": "https://developer.apple.com/documentation/os/osallocatedunfairlock",
+  "license": "Apple SDK",
+  "usability": "platform",
+  "language": "Swift",
+  "platforms": "iOS 16+, macOS 13+, tvOS 16+, watchOS 9+",
+  "install": "built into iOS 16+ / macOS 13+ (import os)",
+  "maintenance_status": "active",
+  "stars": null,
+  "last_commit": "",
+  "one_liner": "Heap-allocated Swift wrapper for os_unfair_lock; faster than NSLock uncontended, but measured 1.75x slower under heavy contention.",
+  "how_it_is_fast": "It allocates the os_unfair_lock (and optionally the protected state) on the heap, so the lock has the stable address that a Swift value type cannot guarantee. Acquisition is an atomic compare-and-swap in user space, with a kernel call only on contention. The thread that measured it slower than NSLock under contention did not explain the cause.",
+  "use_it_when": [
+    "Mostly uncontended locking on iOS 16+ / macOS 13+ where Mutex (iOS 18+) is not yet available",
+    "You need the os_unfair_lock speed without the unsafe &lock pattern"
+  ],
+  "skip_it_when": [
+    "Many threads hammer the same lock continuously; in the only published test NSLock finished faster",
+    "Cross-platform code (use Synchronization.Mutex)",
+    "Deployment targets below iOS 16 / macOS 13"
+  ],
+  "caveats": [
+    "The poster said the OSAllocatedUnfairLock timing was unstable, between 3 and 4 seconds",
+    "Hardware, OS and build configuration are not stated for the contended test",
+    "The uncontended comparison is indirect: it measures raw os_unfair_lock against pthread_mutex in 2019, not OSAllocatedUnfairLock against NSLock"
+  ],
+  "tradeoffs": [
+    "One extra heap allocation per lock compared with Mutex",
+    "Not FIFO and not recursive",
+    "Apple platforms only"
+  ],
+  "evidence": [
+    {
+      "url": "https://forums.swift.org/t/se-0433-mutex-vs-actor-general-advice/71338",
+      "quote": "NSLock ~ 2 sec"
+    },
+    {
+      "url": "https://forums.swift.org/t/se-0433-mutex-vs-actor-general-advice/71338",
+      "quote": "OSAllocatedUnfairLock ~ 3.5 sec"
+    },
+    {
+      "url": "https://forums.swift.org/t/se-0433-mutex-vs-actor-general-advice/71338",
+      "quote": "running 10 tasks in parallel each"
+    },
+    {
+      "url": "https://forums.swift.org/t/se-0433-mutex-vs-actor-general-advice/71338",
+      "quote": "sequential version (all 100M"
+    },
+    {
+      "url": "https://www.cocoawithlove.com/blog/2016/06/02/threads-and-mutexes.html",
+      "quote": "I ran a simple loop, 10 million times, entering a mutex, incrementing a counter, and leaving the mutex."
+    },
+    {
+      "url": "https://www.cocoawithlove.com/blog/2016/06/02/threads-and-mutexes.html",
+      "quote": "0.263 0.175 0.172"
+    },
+    {
+      "url": "https://www.cocoawithlove.com/blog/2016/06/02/threads-and-mutexes.html",
+      "quote": "0.187 0.130 0.12"
+    }
+  ],
+  "checked": "2026-10-28"
+}

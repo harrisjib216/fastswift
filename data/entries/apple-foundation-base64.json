@@ -1,0 +1,110 @@
+{
+  "id": "apple:foundation#base64",
+  "name": "Foundation Base64 (swift-foundation 2025 rewrite)",
+  "domain": "data-formats",
+  "category": "base64-and-encoding",
+  "baseline": "Foundation base64EncodedString / Data(base64Encoded:) as shipped before February 2025",
+  "verdict": "confirm",
+  "verdict_reason": "Benchmarks posted on the merged swift-foundation PRs show 1 MB encodes 5.8-7x faster and 1 MB decodes 5.2-7.5x faster than the Foundation of the time, and later follow-ups report another 3-4x on encoding and about 2x on decoding. Rejecting invalid input got slower.",
+  "evidence_tier": "C",
+  "tier_reason": "Measured by the change's author with swift-foundation's benchmark target, but the 2025 posts give no hardware or toolchain.",
+  "claimed_speedup": "1MB encode to String 414μs vs 2915μs (7x), to Data 494μs vs 2894μs (5.8x); JWT-header encode 120ns vs 409ns (3.4x); 1MB decode from String 405μs vs 3038μs (7.5x), from Data 406μs vs 2123μs (5.2x); invalid input after 257 bytes 2675ns vs 748ns (3.5x slower). Follow-ups: encoding '3-4 times' faster again, decoding 'Generally ~2, but up to 4 times' faster.",
+  "workload": "swift-foundation Base64 benchmarks: encoding and decoding 1 MB buffers to and from String and Data, line-length options, a JWT header, and an invalid-input case",
+  "metric": "time",
+  "hardware": "Not stated for the 2025 numbers; the follow-up PRs list Apple M1 and M6 machines",
+  "os": "",
+  "toolchain": "",
+  "benchmark_date": "2025-02",
+  "benchmark_url": "https://github.com/swiftlang/swift-foundation/pull/1157",
+  "repo_url": null,
+  "docs_url": "https://developer.apple.com/documentation/foundation/data/base64encodedstring(options:)",
+  "license": "Apple SDK",
+  "usability": "platform",
+  "language": "Swift",
+  "platforms": "Foundation releases built from swift-foundation after February 2025 (first OS release not stated in the sources)",
+  "install": "built into Foundation",
+  "maintenance_status": "active",
+  "stars": null,
+  "last_commit": "",
+  "one_liner": "Foundation's own Base64, rewritten in Swift in 2025: 1 MB encodes and decodes 5-7.5x faster than the version it replaced.",
+  "how_it_is_fast": "A Swift encoder and decoder built on precomputed lookup tables (the swift-extras-base64 approach, contributed by the same author) write straight into the output buffer instead of going through the older implementation. The follow-up PRs restructure the loops so the compiler can auto-vectorize them and use Span for input and output.",
+  "use_it_when": [
+    "Default choice for Base64 once your OS or toolchain includes the rewrite",
+    "Large payloads (images, attachments, JWT bodies) encoded or decoded in bulk"
+  ],
+  "skip_it_when": [
+    "Older OS versions without the change keep the old speed",
+    "Workloads dominated by rejecting malformed input: that path measured 3.5x slower"
+  ],
+  "caveats": [
+    "Author-measured; the 2025 posts give no hardware or toolchain.",
+    "Which OS release first ships each change is not stated; the October 2026 follow-ups are on main and probably not in a shipping OS yet.",
+    "'Baseline (in Foundation today)' is the system Foundation the author measured against in February 2025."
+  ],
+  "tradeoffs": [
+    "Invalid-input rejection is slower than before (2675ns vs 748ns in the decode PR's measurement)"
+  ],
+  "evidence": [
+    {
+      "url": "https://github.com/swiftlang/swift-foundation/pull/1157",
+      "quote": "Baseline (in Foundation today): 2894μs"
+    },
+    {
+      "url": "https://github.com/swiftlang/swift-foundation/pull/1157",
+      "quote": "This PR: 494μs (5.8x faster)"
+    },
+    {
+      "url": "https://github.com/swiftlang/swift-foundation/pull/1157",
+      "quote": "Baseline (in Foundation today): 2915μs"
+    },
+    {
+      "url": "https://github.com/swiftlang/swift-foundation/pull/1157",
+      "quote": "This PR: 414μs (7x faster)"
+    },
+    {
+      "url": "https://github.com/swiftlang/swift-foundation/pull/1157",
+      "quote": "Baseline (in Foundation today): 409ns"
+    },
+    {
+      "url": "https://github.com/swiftlang/swift-foundation/pull/1157",
+      "quote": "This PR: 120ns (3.4x faster)"
+    },
+    {
+      "url": "https://github.com/swiftlang/swift-foundation/pull/1160",
+      "quote": "Baseline (in Foundation today): 3038μs"
+    },
+    {
+      "url": "https://github.com/swiftlang/swift-foundation/pull/1160",
+      "quote": "This PR: 405μs (7.5x faster)"
+    },
+    {
+      "url": "https://github.com/swiftlang/swift-foundation/pull/1160",
+      "quote": "Baseline (in Foundation today): 2123μs"
+    },
+    {
+      "url": "https://github.com/swiftlang/swift-foundation/pull/1160",
+      "quote": "This PR: 406μs (5.2x faster)"
+    },
+    {
+      "url": "https://github.com/swiftlang/swift-foundation/pull/1160",
+      "quote": "base64-decode-1MB-fromData-noOptions-invalidAfter257bytes"
+    },
+    {
+      "url": "https://github.com/swiftlang/swift-foundation/pull/1160",
+      "quote": "Baseline (in Foundation today): 748ns"
+    },
+    {
+      "url": "https://github.com/swiftlang/swift-foundation/pull/1160",
+      "quote": "This PR: 2675ns (3.5x slower)"
+    },
+    {
+      "url": "https://github.com/swiftlang/swift-foundation/pull/2236",
+      "quote": "The Base64 encoding logic can be made 3-4 times more performant."
+    },
+    {
+      "url": "https://github.com/swiftlang/swift-foundation/pull/2301",
+      "quote": "Generally ~2, but up to 4 times faster decoding for large inputs, per benchmarks."
+    }
+  ],
+  "checked": "2026-10-28"
+}

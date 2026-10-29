@@ -1,0 +1,59 @@
+{
+  "id": "https://github.com/mergesort/bodega",
+  "name": "Bodega (SQLiteStorageEngine)",
+  "domain": "storage",
+  "category": "caches-and-key-value",
+  "baseline": "One file per object on disk (Bodega's DiskStorageEngine, the plain FileManager write pattern)",
+  "verdict": "confirm",
+  "verdict_reason": "The docs give about 0.1 s against 0.25 s to load 1,000 objects and say the gap grows with object count, which the charts show widening into the thousands. The result matches the known cost of per-file system calls, though it is the author's own comparison of two of his engines.",
+  "evidence_tier": "C",
+  "tier_reason": "First-party figures stated as a rule of thumb, with charts but no device, OS or build configuration.",
+  "claimed_speedup": "Loading 1,000 objects: about 0.1 seconds with SQLiteStorageEngine vs about 0.25 seconds with DiskStorageEngine (2.5x, derived from page data); larger counts appear only in charts.",
+  "workload": "Reading (initializing from storage) and writing 1,000 to 10,000 small objects stored as Data blobs keyed by CacheKey.",
+  "metric": "time",
+  "hardware": "",
+  "os": "",
+  "toolchain": "",
+  "benchmark_date": "",
+  "benchmark_url": "https://mergesort.github.io/Bodega/documentation/bodega/using-storageengines",
+  "repo_url": "https://github.com/mergesort/Bodega",
+  "docs_url": null,
+  "license": "MIT",
+  "usability": "copyable",
+  "language": "Swift",
+  "platforms": "iOS 13+, macOS 11+, tvOS 13+",
+  "install": "Swift Package Manager",
+  "maintenance_status": "active",
+  "stars": 377,
+  "last_commit": "2026-06-24",
+  "one_liner": "Key-value store whose SQLite engine loads 1,000 objects in about 0.1 s against 0.25 s for one-file-per-object storage.",
+  "how_it_is_fast": "SQLiteStorageEngine keeps every object as a row in one SQLite database (through SQLite.swift), so a batch read or write is a few statements in one transaction. One-file-per-object storage pays an open, read or write, and close (plus directory updates) for every object, and that cost grows with the number of files.",
+  "use_it_when": [
+    "Persisting thousands of small Codable objects or blobs (API responses, app state) with a simple key-value API",
+    "Replacing hand-rolled one-file-per-object caches whose launch time grows with object count"
+  ],
+  "skip_it_when": [
+    "Large blobs such as full-size images, where individual files avoid SQLite page overhead",
+    "You need to inspect or sync the stored files with ordinary file tools"
+  ],
+  "caveats": [
+    "A comparison between Bodega's own two engines, not against hand-written FileManager code",
+    "The text figures are an approximate 'rule of thumb'; per-count values are only in charts",
+    "No device, OS or build configuration given"
+  ],
+  "tradeoffs": [
+    "Adds SQLite.swift as a dependency",
+    "Stored data is opaque without an SQLite viewer"
+  ],
+  "evidence": [
+    {
+      "url": "https://github.com/mergesort/Bodega/blob/main/Sources/Bodega/Documentation.docc/Articles/Fundamentals/Using%20StorageEngines.md",
+      "quote": "a rule of thumb is that loading 1,000 objects from disk takes about 0.25 seconds"
+    },
+    {
+      "url": "https://github.com/mergesort/Bodega/blob/main/Sources/Bodega/Documentation.docc/Articles/Fundamentals/Using%20StorageEngines.md",
+      "quote": "By comparison if you're using ``SQLiteStorageEngine`` it only takes about 0.1 seconds to load 1,000 objects, the difference only growing more the more objects you have."
+    }
+  ],
+  "checked": "2026-10-28"
+}

@@ -1,0 +1,57 @@
+{
+  "id": "apple:swiftui#list",
+  "name": "SwiftUI List (macOS 26)",
+  "domain": "ui-and-rendering",
+  "category": "lists-and-scrolling",
+  "baseline": "SwiftUI List on macOS 15 and earlier",
+  "verdict": "confirm",
+  "verdict_reason": "Apple states that macOS 26 loads lists of more than 100,000 items 6x faster and updates them up to 16x faster. No independent measurement was found to contradict it, but none confirms it either.",
+  "evidence_tier": "C",
+  "tier_reason": "First-party WWDC claim with no workload detail, hardware or published benchmark.",
+  "claimed_speedup": "On macOS, lists of over 100,000 items load 6x faster and update up to 16x faster; 'improvements to all platforms' not quantified.",
+  "workload": "SwiftUI List with more than 100,000 rows: initial load and updates. No further detail given.",
+  "metric": "time",
+  "hardware": "",
+  "os": "macOS 26 vs earlier macOS",
+  "toolchain": "",
+  "benchmark_date": "2025-06",
+  "benchmark_url": "https://developer.apple.com/videos/play/wwdc2025/256/",
+  "repo_url": null,
+  "docs_url": "https://developer.apple.com/documentation/swiftui/list",
+  "license": "Apple SDK",
+  "usability": "platform",
+  "language": "Swift",
+  "platforms": "macOS 26+ (smaller unquantified gains on other platforms)",
+  "install": "built into macOS 26+",
+  "maintenance_status": "active",
+  "stars": null,
+  "last_commit": "",
+  "one_liner": "Apple says SwiftUI List on macOS 26 loads 100,000+ item lists 6x faster and updates them up to 16x faster than before.",
+  "how_it_is_fast": "Apple did not describe the mechanism for the macOS list gains. The same session describes improved scheduling of UI updates on iOS and macOS so more work is prepared ahead of upcoming frames, and lazy loading for lazy stacks nested in scroll views.",
+  "use_it_when": [
+    "Mac apps showing very large tables or outlines in SwiftUI List",
+    "Apps that previously wrapped NSTableView only because List was slow at this scale"
+  ],
+  "skip_it_when": [
+    "Apps that must support macOS 15 or earlier, where the old behaviour remains"
+  ],
+  "caveats": [
+    "First-party figures only; no device, dataset shape or method published.",
+    "The figures are for macOS; iOS, iPadOS and other platforms were described only as improved.",
+    "The session does not say whether the gain needs the macOS 26 SDK or only the macOS 26 runtime."
+  ],
+  "tradeoffs": [
+    "None to adopt beyond requiring macOS 26 for the gain."
+  ],
+  "evidence": [
+    {
+      "url": "https://developer.apple.com/videos/play/wwdc2025/256/",
+      "quote": "On macOS, lists of over 100,000 items now load 6x faster."
+    },
+    {
+      "url": "https://developer.apple.com/videos/play/wwdc2025/256/",
+      "quote": "And these lists update up to 16x faster."
+    }
+  ],
+  "checked": "2026-10-28"
+}

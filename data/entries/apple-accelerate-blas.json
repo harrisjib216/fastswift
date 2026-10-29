@@ -1,0 +1,71 @@
+{
+  "id": "apple:accelerate#blas",
+  "name": "Accelerate (BLAS and LAPACK)",
+  "domain": "ml-and-numerics",
+  "category": "linear-algebra-and-dsp",
+  "baseline": "Unoptimized Linpack code (no tuned BLAS); Eigen for single-precision GEMM",
+  "verdict": "confirm",
+  "verdict_reason": "Apple showed Linpack over 24 times faster with Accelerate than an unoptimized build, and SGEMM almost 2.5 times faster than Eigen, on an iPhone XS. No newer data contradicts this. A 2025 forum user measured cblas_daxpy about 4x faster than a manual loop on an M4 Mac mini, though that comparison does different memory traffic.",
+  "evidence_tier": "C",
+  "tier_reason": "First-party WWDC demo with the device stated but no problem sizes, flags or code.",
+  "claimed_speedup": "Linpack over 24 times faster than an unoptimized Linpack; single-precision GEMM almost two and a half times faster than Eigen, which tops out at about 51 gigaflops (iPhone XS); forum re-test: BLAS rendition ~4× faster than a manual loop on an M4 Mac mini",
+  "workload": "Linpack, no-holds-barred variant with unrestricted problem size; single-precision GEMM. Forum: daxpy over 800,000,000-element Double arrays.",
+  "metric": "throughput (GFLOPS) and time",
+  "hardware": "iPhone XS (A12); forum re-test on M4 Mac mini",
+  "os": "",
+  "toolchain": "",
+  "benchmark_date": "2019-06",
+  "benchmark_url": "https://developer.apple.com/videos/play/wwdc2019/718/",
+  "repo_url": null,
+  "docs_url": "https://developer.apple.com/documentation/accelerate/blas",
+  "license": "Apple SDK",
+  "usability": "platform",
+  "language": "C (Fortran-style BLAS/LAPACK interfaces)",
+  "platforms": "iOS, macOS, tvOS, watchOS, visionOS",
+  "install": "built into all Apple OS versions",
+  "maintenance_status": "active",
+  "stars": null,
+  "last_commit": "",
+  "one_liner": "Apple's tuned BLAS and LAPACK; Linpack over 24x faster than untuned code and SGEMM about 2.5x faster than Eigen on iPhone XS.",
+  "how_it_is_fast": "GEMM and the blocked LAPACK factorizations built on it are hand-tuned to each Apple CPU's caches and vector units, and on Apple silicon Accelerate can use matrix hardware that third-party code cannot reach directly. The routines also use multiple cores without extra code.",
+  "use_it_when": [
+    "Matrix multiplication, factorizations and linear solvers on matrices of more than a few dozen rows",
+    "Any dense linear algebra a Swift loop would do with nested for loops"
+  ],
+  "skip_it_when": [
+    "Tiny fixed-size matrices (2x2 to 4x4), where simd types avoid call overhead",
+    "Linux or Windows targets: use OpenBLAS or another BLAS there"
+  ],
+  "caveats": [
+    "2019 demo on iPhone XS; Apple silicon Macs and current OS releases were not covered",
+    "The unoptimized Linpack baseline is not a naive Swift triple loop, and Eigen's build flags were not stated",
+    "The forum ~4x figure compares daxpy (two arrays, in place) with a three-array loop, so the work differs"
+  ],
+  "tradeoffs": [
+    "The newer LAPACK interfaces need the ACCELERATE_NEW_LAPACK (and ILP64) defines",
+    "C-style API with column-major conventions"
+  ],
+  "evidence": [
+    {
+      "url": "https://developer.apple.com/videos/play/wwdc2019/718/",
+      "quote": "At the top in orange, we're going to run an unoptimized Linpack."
+    },
+    {
+      "url": "https://developer.apple.com/videos/play/wwdc2019/718/",
+      "quote": "We can see that by using the Accelerate framework, we are over 24 times faster."
+    },
+    {
+      "url": "https://developer.apple.com/videos/play/wwdc2019/718/",
+      "quote": "Eigen tops out at about 51 gigaflops."
+    },
+    {
+      "url": "https://developer.apple.com/videos/play/wwdc2019/718/",
+      "quote": "We can see that the Accelerate framework is almost two and a half times faster than Eigen on the same platform."
+    },
+    {
+      "url": "https://forums.swift.org/t/performance-of-accelerate-framework-vs-swift-on-apple-silicon/80919",
+      "quote": "I find that the BLAS rendition was ~4× faster on my M4 Mac mini."
+    }
+  ],
+  "checked": "2026-10-28"
+}

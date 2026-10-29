@@ -1,0 +1,68 @@
+{
+  "id": "https://github.com/elihwyma/pugiswift",
+  "name": "PugiSwift",
+  "domain": "data-formats",
+  "category": "xml-and-html",
+  "baseline": "XMLCoder (Codable over Foundation XMLParser) and Fuzi (libxml2)",
+  "verdict": "downgrade",
+  "verdict_reason": "It parsed a 212 KB file 14x as often as XMLCoder and 3.7x as often as Fuzi in one test. Plain Foundation XMLParser with a delegate was not measured, so the gap to the actual default is unknown, and the method (one one-second loop per parser) is thin.",
+  "evidence_tier": "C",
+  "tier_reason": "Benchmark code is public (PugiSwiftComparisons) and run in release mode, but hardware, OS and Swift version are not stated and each parser runs one one-second loop.",
+  "claimed_speedup": "757 parses/s vs 207 (Fuzi) and 54 (XMLCoder) on a 212kb file: 3.7x Fuzi and 14x XMLCoder (ratios derived from page data)",
+  "workload": "Parsing a 212 KB XML file of <record> elements (11 string and integer fields each) into Swift structs, counting completed parses in one second",
+  "metric": "throughput (parses per second)",
+  "hardware": "",
+  "os": "",
+  "toolchain": "Release mode, debugger off; Swift version not stated",
+  "benchmark_date": "2024-10-31",
+  "benchmark_url": "https://github.com/elihwyma/PugiSwift/blob/main/README.md",
+  "repo_url": "https://github.com/elihwyma/PugiSwift",
+  "docs_url": null,
+  "license": "Apache-2.0",
+  "usability": "copyable",
+  "language": "Swift + C++",
+  "platforms": "Apple platforms and Linux (server use with Vapor per README)",
+  "install": "Swift Package Manager",
+  "maintenance_status": "stale",
+  "stars": 14,
+  "last_commit": "2025-09-20",
+  "one_liner": "Swift macros over the pugixml C++ parser; 14x XMLCoder and 3.7x Fuzi on a 212 KB file in its author's test.",
+  "how_it_is_fast": "pugixml parses the document in place into a compact DOM with few allocations, and Swift macros (@Node, @Attribute, @Element) generate the code that maps nodes to struct fields. XMLCoder instead drives Foundation's XMLParser callbacks into an intermediate tree and runs Codable over it.",
+  "use_it_when": [
+    "Decoding large or frequent XML documents into fixed Swift structs",
+    "Server-side XML ingestion where XMLCoder shows up in profiles"
+  ],
+  "skip_it_when": [
+    "You need XPath or CSS queries over arbitrary documents (Fuzi, Kanna)",
+    "Streaming very large files: pugixml builds a full DOM in memory"
+  ],
+  "caveats": [
+    "One one-second loop per parser, no warm-up or repeated trials.",
+    "Hardware, OS and Swift version not stated.",
+    "Foundation XMLParser used directly (SAX delegate, no Codable) was not measured.",
+    "Small project: 14 stars, bundles pugixml 1.14."
+  ],
+  "tradeoffs": [
+    "C++ interop in the build",
+    "Macro-generated mapping is less flexible than query-based access"
+  ],
+  "evidence": [
+    {
+      "url": "https://github.com/elihwyma/PugiSwift/blob/main/README.md",
+      "quote": "The test was in Release mode with the debugger turned off. Comparisons were made against [Fuzi](https://github.com/cezheng/Fuzi.git) and [XMLCoder](https://github.com/CoreOffice/XMLCoder.git)."
+    },
+    {
+      "url": "https://github.com/elihwyma/PugiSwift/blob/main/README.md",
+      "quote": "title \"Parses per second of 212kb file\""
+    },
+    {
+      "url": "https://github.com/elihwyma/PugiSwift/blob/main/README.md",
+      "quote": "x-axis \"Programs\" [\"PugiSwift\", \"Fuzi\", \"XMLCoder\"]"
+    },
+    {
+      "url": "https://github.com/elihwyma/PugiSwift/blob/main/README.md",
+      "quote": "bar [757, 207, 54]"
+    }
+  ],
+  "checked": "2026-10-28"
+}

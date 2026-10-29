@@ -1,0 +1,106 @@
+# MLX Swift (LLM decoding on the Apple silicon GPU)
+
+<sub>[fastswift](../../../README.md) › [Catalog](../../README.md) › [ML and numerics](../README.md) › [On-device inference](README.md)</sub>
+
+**Tier A** (reproducible public benchmark) · 🟡 Holds up in part · Open source · `Swift + C++` · `MIT` · 🟢 active
+
+> Swift API for Apple's MLX array framework; decodes LLMs on the GPU faster than Core ML's Neural Engine path in short bursts.
+
+| | |
+|---|---|
+| **Beats** | Core ML LLM conversions running on the Neural Engine (CoreML-LLM), with llama.cpp's Metal backend as the other common choice |
+| **Claimed result** | iPhone 17 Pro, Gemma 4 E2B: 48 vs 33 tok/s burst decode over Core ML/ANE (1.45x, derived from page data), but 18 vs 22 tok/s after 10 minutes sustained; MLX-Swift PTQ 4-bit 49.1 tok/s vs llama.cpp Q4_K_M 38.8 tok/s on iPhone; 177.8 vs 127.1 tok/s over llama.cpp on M4 Max; against Core AI on M4 Max, Qwen3-8B 90.0 vs 94.1 tok/s (Core AI +5%), gpt-oss-20b MoE 100.2 vs 78.1 tok/s (MLX +28%) |
+| **Workload** | Batch-1 greedy LLM decoding of 4-bit models: 128-token short-chat prompt on iPhone (Gemma 4 E2B), Apple's llm-benchmark protocol on Mac (512-token prompt, 1024 generated, 5 trials), plus a 600-second continuous generation run for throttling. |
+| **Metric** | throughput (decode tokens/s) |
+| **Hardware** | iPhone 17 Pro (A19 Pro); Mac Studio (M4 Max) |
+| **OS** | iOS 27 beta; macOS 27 beta |
+| **Toolchain** | mlx 0.32.2 and mlx-lm 0.31.3 on Mac; MLX Swift engine commit 60bd0d78 on iPhone |
+| **Measured** | 2026-07-28 |
+| **Adoption** | 2.1k stars |
+| **Last commit** | 2026-10-28 |
+| **Platforms** | macOS 14+, iOS 17+, tvOS 17+, visionOS 1+ |
+| **Install** | Swift Package Manager |
+| **Links** | [repository](https://github.com/ml-explore/mlx-swift) · [benchmark](https://github.com/john-rocky/apple-silicon-llm-bench/blob/bd5feaf9fb1a5539046bb30789223d628d39d622/README.md) |
+
+## Verdict
+
+In a third-party harness MLX Swift decodes faster than the Core ML Neural Engine path in short bursts and beats llama.cpp, but on a 10-minute sustained run on iPhone it fell below Core ML. Apple's Core AI runtime, the Core ML successor in iOS 27 and macOS 27, matches or beats MLX on every dense model tested.
+
+**Why tier A:** Third-party harness with public code and raw per-run logs; devices, OS betas, engine commits and quantization are stated per cell.
+
+## Use it when
+
+- Interactive chat on a Mac or iPhone where generations are short and the GPU is otherwise idle
+- Running a model as soon as it appears on mlx-community, without a Core ML conversion step
+- Mixture-of-experts models, where MLX beat Core AI by 28% on gpt-oss-20b
+
+## Skip it when
+
+- Long sustained generation on iPhone: throughput dropped below the Core ML Neural Engine path within the 10-minute run
+- Memory-constrained apps: the Gemma 4 E2B PTQ build used about 3 GB of footprint on iPhone
+- iOS 27 / macOS 27 apps running dense models, where Core AI ties or wins
+- Apps that need the GPU for rendering at the same time
+
+## How it is fast
+
+MLX evaluates array graphs lazily and runs them as Metal kernels written for Apple silicon, with weights in unified memory so nothing is copied between CPU and GPU. Its quantized matmul kernels keep 4-bit decoding close to the memory-bandwidth limit. MLX Swift calls the same C++ core as the Python package.
+
+## What it costs
+
+- Several times the memory footprint of the Core ML Neural Engine path and of LiteRT-LM
+- GPU-only execution heats the phone and throttles under sustained load
+- The Metal path is Apple-only
+
+## Problems with the evidence
+
+- One third-party harness; its author also maintains the CoreML-LLM conversions used for the Core ML arm
+- The README warns that ratios between capture sessions on the iPhone are not measurements; the same MLX binary measured 126-133 tok/s in June and 159-180 in July on the same phone
+- All runs on iOS 27 and macOS 27 betas
+- The 48 vs 33 tok/s burst figures come from the throttling run, not the main decode table
+
+## Evidence
+
+<details>
+<summary>10 quotes from the sources, checked 2026-10-28</summary>
+
+> | **CoreML / ANE** | 33 | **22** | **67%** |
+>
+> — [github.com/john-rocky/apple-silicon-llm-bench/blob/bd5feaf9fb1a5539…](https://github.com/john-rocky/apple-silicon-llm-bench/blob/bd5feaf9fb1a5539046bb30789223d628d39d622/README.md)
+
+> | MLX / GPU | 48 | 18 | 38% |
+>
+> — [github.com/john-rocky/apple-silicon-llm-bench/blob/bd5feaf9fb1a5539…](https://github.com/john-rocky/apple-silicon-llm-bench/blob/bd5feaf9fb1a5539046bb30789223d628d39d622/README.md)
+
+> Two **independent** GPU runtimes collapsing the same way is a GPU-thermal property of the phone, not a runtime quirk. MLX ends up *below* the ANE;
+>
+> — [github.com/john-rocky/apple-silicon-llm-bench/blob/bd5feaf9fb1a5539…](https://github.com/john-rocky/apple-silicon-llm-bench/blob/bd5feaf9fb1a5539046bb30789223d628d39d622/README.md)
+
+> | 🟣 MLX-Swift | PTQ 4-bit | 49.1 (A2 7/28, n=6) | 20.5 ms | 3,010 | 84.0% | 0.182 ◊ |
+>
+> — [github.com/john-rocky/apple-silicon-llm-bench/blob/bd5feaf9fb1a5539…](https://github.com/john-rocky/apple-silicon-llm-bench/blob/bd5feaf9fb1a5539046bb30789223d628d39d622/README.md)
+
+> | 🔵 llama.cpp | Q4_K_M (PTQ) | 38.8 (7/27, n=10) | 24.4 ms (7/27) | 191 † | 76.0% | 0.260 ◊ |
+>
+> — [github.com/john-rocky/apple-silicon-llm-bench/blob/bd5feaf9fb1a5539…](https://github.com/john-rocky/apple-silicon-llm-bench/blob/bd5feaf9fb1a5539046bb30789223d628d39d622/README.md)
+
+> | 🟣 MLX PTQ 4-bit | **0.090** 🏆 | 14.6 | **177.8** 🏆 |
+>
+> — [github.com/john-rocky/apple-silicon-llm-bench/blob/bd5feaf9fb1a5539…](https://github.com/john-rocky/apple-silicon-llm-bench/blob/bd5feaf9fb1a5539046bb30789223d628d39d622/README.md)
+
+> | 🔵 llama.cpp Q4_K_M | 0.170 | 20.5 | 127.1 |
+>
+> — [github.com/john-rocky/apple-silicon-llm-bench/blob/bd5feaf9fb1a5539…](https://github.com/john-rocky/apple-silicon-llm-bench/blob/bd5feaf9fb1a5539046bb30789223d628d39d622/README.md)
+
+> | qwen3-8b | 4.3 GB | **94.1** (912) | 90.0 (825) | **Core AI +5%** |
+>
+> — [github.com/john-rocky/apple-silicon-llm-bench/blob/bd5feaf9fb1a5539…](https://github.com/john-rocky/apple-silicon-llm-bench/blob/bd5feaf9fb1a5539046bb30789223d628d39d622/README.md)
+
+> | gpt-oss-20b (MoE, MXFP4) | 13 GB | 78.1 (1,252) | **100.2** (1,528) | **MLX +28%** |
+>
+> — [github.com/john-rocky/apple-silicon-llm-bench/blob/bd5feaf9fb1a5539…](https://github.com/john-rocky/apple-silicon-llm-bench/blob/bd5feaf9fb1a5539046bb30789223d628d39d622/README.md)
+
+> **Core AI matches or beats MLX on every dense model; MLX's one clear win is the MoE**
+>
+> — [github.com/john-rocky/apple-silicon-llm-bench/blob/bd5feaf9fb1a5539…](https://github.com/john-rocky/apple-silicon-llm-bench/blob/bd5feaf9fb1a5539046bb30789223d628d39d622/README.md)
+
+</details>

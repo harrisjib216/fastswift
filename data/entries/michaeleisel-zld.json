@@ -1,0 +1,74 @@
+{
+  "id": "https://github.com/michaeleisel/zld",
+  "name": "zld",
+  "domain": "tooling",
+  "category": "linkers",
+  "baseline": "ld64 from Xcode 11-13",
+  "verdict": "reject",
+  "verdict_reason": "zld was about 40% faster than the ld64 of 2019-2020, but it is archived, never supported an Xcode 14 change, and its author says better-funded linkers caught up and surpassed it in 2022. ld-prime, the default since Xcode 15, is now faster than LLD, which had already passed zld. The default caught up.",
+  "evidence_tier": "C",
+  "tier_reason": "First-party numbers with the linker command lines published, but only 'a high-end mac desktop' as hardware, columns unlabeled in the text, and Xcode 11-era SDKs.",
+  "claimed_speedup": "Linking at least 40% faster than ld64; Mozilla XUL 5.2s vs 2.20s, Signal 390 vs 250 ms, Firefox Storage.framework 495 vs 340 ms on a high-end Mac desktop (about 2.4x, 1.6x and 1.5x, derived from page data)",
+  "workload": "Linking Signal-iOS's app binary, Firefox's XUL framework and firefox-ios's Storage.framework, debug-style link commands",
+  "metric": "time",
+  "hardware": "'High-end mac desktop' (unspecified); a 2014 MacBook Pro for a second set of runs",
+  "os": "",
+  "toolchain": "Xcode 11-era ld64 (iPhoneSimulator13.2 and MacOSX10.14 SDKs in the commands)",
+  "benchmark_date": "2020",
+  "benchmark_url": "https://github.com/michaeleisel/zld/blob/master/misc/benchmarks.md",
+  "repo_url": "https://github.com/michaeleisel/zld",
+  "docs_url": null,
+  "license": "MIT",
+  "usability": "copyable",
+  "language": "C++",
+  "platforms": "macOS",
+  "install": "Prebuilt binary from GitHub releases; -fuse-ld in Other Linker Flags",
+  "maintenance_status": "abandoned",
+  "stars": 1192,
+  "last_commit": "2023-02-15",
+  "one_liner": "Archived fork of ld64 that linked about 40% faster in 2020; lld and then Xcode 15's ld-prime overtook it.",
+  "how_it_is_fast": "zld kept ld64's code but swapped STL hash maps for Swiss Tables, parallelized library parsing, sorting and output writing, and cached string hashes. It also stored file metadata in /tmp to reuse across links.",
+  "use_it_when": [
+    "Only for historical comparison; there is no current toolchain where it is the fastest working option"
+  ],
+  "skip_it_when": [
+    "Xcode 14 and later: the author did not add support for an Xcode 14 change and archived the project",
+    "Release builds: the README says it was only intended for debug builds"
+  ],
+  "caveats": [
+    "misc/benchmarks.md lists two numbers per project without saying which is ld64 and which is zld; the smaller is presumably zld",
+    "Benchmarks used Xcode 11-era SDKs, before Apple's Xcode 14 ld64 speedups and the Xcode 15 rewrite",
+    "Hardware is described only as 'a high-end mac desktop'; the README's chart is an image"
+  ],
+  "tradeoffs": [
+    "Lags Apple's linker features because it forks the last open-sourced ld64",
+    "Silently falls back to Apple's ld for some targets such as arm64_32 and Catalyst"
+  ],
+  "evidence": [
+    {
+      "url": "https://github.com/michaeleisel/zld",
+      "quote": "zld is now archived, consider using lld instead."
+    },
+    {
+      "url": "https://github.com/michaeleisel/zld",
+      "quote": "Feel free to file an issue if you find that linking is not at least 40% faster for your case"
+    },
+    {
+      "url": "https://github.com/michaeleisel/zld/blob/master/misc/benchmarks.md",
+      "quote": "high-end mac desktop numbers (ms): signal: 390, 250 mozilla XUL: 5.2s, 2.20s mozilla's storage.framework: 495, 340"
+    },
+    {
+      "url": "https://eisel.me/lld",
+      "quote": "it ended up being about 40% faster than ld64"
+    },
+    {
+      "url": "https://eisel.me/lld",
+      "quote": "better-funded projects had caught up and surpassed it in 2022"
+    },
+    {
+      "url": "https://github.com/chromium/chromium/blob/13b8fd8fc88ffeea53b0ae5d07d82c5cfd2f03df/docs/apple_platform_linkers.md",
+      "quote": "Recent benchmarks show that Apple's new linker (ld-prime) is faster than LLD for local macOS development"
+    }
+  ],
+  "checked": "2026-10-28"
+}

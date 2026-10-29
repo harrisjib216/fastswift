@@ -1,0 +1,89 @@
+{
+  "id": "apple:swiftui#list-vs-lazyvstack",
+  "name": "SwiftUI List (vs ScrollView + LazyVStack)",
+  "domain": "ui-and-rendering",
+  "category": "lists-and-scrolling",
+  "baseline": "SwiftUI ScrollView containing a LazyVStack",
+  "verdict": "downgrade",
+  "verdict_reason": "In one stress test on iOS 17.5.1, List scrolled 1,000 heavy rows in 5.53 s against 52.3 s for LazyVStack, with 4.6 hangs against 78, and used less memory after scrolling. List also used more memory at launch. The workload is extreme, the build configuration is not stated, and iOS 26 changed lazy stack scheduling, so the size of the gap does not carry over to typical lists.",
+  "evidence_tier": "B",
+  "tier_reason": "Third-party article (STRV) with numbers, device and OS stated; code given inline but no build configuration and manual scroll timing.",
+  "claimed_speedup": "Scroll to bottom: 5.53 s (List) vs 52.3 s (LazyVStack), 9.5x (derived from page data); hangs 4.6 vs 78; memory after scrolling down 128.9 MB vs 149 MB, after scrolling back 118.2 MB vs 151.8 MB; at launch List used more, 114.4 MB vs 90.2 MB.",
+  "workload": "1,000 rows; each row is a 20x20 grid of 10x10-point views drawing the same high-resolution image (400 images per row). Fast manual scroll from top to bottom, timed, with hangs counted in Instruments.",
+  "metric": "time, hangs, memory",
+  "hardware": "iPhone 15 Pro",
+  "os": "iOS 17.5.1",
+  "toolchain": "",
+  "benchmark_date": "2025-01-24",
+  "benchmark_url": "https://strv.com/blog/swiftui-list-vs-lazyvstack",
+  "repo_url": null,
+  "docs_url": "https://developer.apple.com/documentation/swiftui/list",
+  "license": "Apple SDK",
+  "usability": "platform",
+  "language": "Swift",
+  "platforms": "iOS 13+",
+  "install": "built into iOS 13+",
+  "maintenance_status": "active",
+  "stars": null,
+  "last_commit": "",
+  "one_liner": "In a 1,000-row image stress test on iOS 17.5, SwiftUI List scrolled 9.5x faster than LazyVStack with far fewer hangs.",
+  "how_it_is_fast": "List is backed by a UIKit collection that reuses cells and releases rows that leave the screen. LazyVStack creates rows lazily but, in this test, kept them alive, so memory and work grew as the user scrolled.",
+  "use_it_when": [
+    "Long, uniform, heavy rows where memory growth during scrolling matters",
+    "Apps targeting iOS 17 and 18 where LazyVStack keeps off-screen rows alive"
+  ],
+  "skip_it_when": [
+    "Small lists, or layouts that need custom spacing and no list styling, where LazyVStack's lower launch memory and flexibility win",
+    "Making a decision for iOS 26+ without re-measuring, since Apple changed lazy stack and scroll scheduling there"
+  ],
+  "caveats": [
+    "Single device and OS (iPhone 15 Pro, iOS 17.5.1); predates iOS 18 and iOS 26 SwiftUI performance work.",
+    "Build configuration not stated; the app was 'rebuilt' from Xcode between runs, which suggests a Debug build.",
+    "Scroll time depends on manual flicking; number of runs per variant is in images only.",
+    "Pathological rows (400 high-resolution image views each), far heavier than typical list cells.",
+    "The article says List is built on UITableView; it has been reported to use UICollectionView since iOS 16, though both reuse cells."
+  ],
+  "tradeoffs": [
+    "List brings platform list styling, separators and insets that can be awkward to remove.",
+    "List used about 24 MB more memory at launch in this test."
+  ],
+  "evidence": [
+    {
+      "url": "https://strv.com/blog/swiftui-list-vs-lazyvstack",
+      "quote": "Scrolling to the bottom took 5.53 seconds with the"
+    },
+    {
+      "url": "https://strv.com/blog/swiftui-list-vs-lazyvstack",
+      "quote": "took a staggering 52.3 seconds"
+    },
+    {
+      "url": "https://strv.com/blog/swiftui-list-vs-lazyvstack",
+      "quote": "experienced 4.6 hangs, while"
+    },
+    {
+      "url": "https://strv.com/blog/swiftui-list-vs-lazyvstack",
+      "quote": "logged 78"
+    },
+    {
+      "url": "https://strv.com/blog/swiftui-list-vs-lazyvstack",
+      "quote": "It starts with 114.4 MB allocated, compared to just 90.2 MB for"
+    },
+    {
+      "url": "https://strv.com/blog/swiftui-list-vs-lazyvstack",
+      "quote": "consumes 128.9 MB of memory, less than the 149 MB used by"
+    },
+    {
+      "url": "https://strv.com/blog/swiftui-list-vs-lazyvstack",
+      "quote": "reverts to a memory usage of 118.2 MB"
+    },
+    {
+      "url": "https://strv.com/blog/swiftui-list-vs-lazyvstack",
+      "quote": "remains at 151.8 MB"
+    },
+    {
+      "url": "https://strv.com/blog/swiftui-list-vs-lazyvstack",
+      "quote": "The testing was performed on an iPhone 15 Pro with iOS 17.5.1"
+    }
+  ],
+  "checked": "2026-10-28"
+}

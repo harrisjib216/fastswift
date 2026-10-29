@@ -1,0 +1,63 @@
+{
+  "id": "https://github.com/swiftlang/swift-foundation#new-codable",
+  "name": "swift-foundation NewCodable (JSONDecodable + JSONParserDecoder, experimental)",
+  "domain": "data-formats",
+  "category": "json",
+  "baseline": "Decodable + Foundation JSONDecoder (current swift-foundation)",
+  "verdict": "confirm",
+  "verdict_reason": "Apple's Codable lead reports about 6x the decode throughput of Decodable + JSONDecoder on twitter.json, and the benchmarks are on the public branch. It is one file on an unreleased prototype, and nothing contradicts it.",
+  "evidence_tier": "C",
+  "tier_reason": "First-party figure from one file with the branch's own benchmark target; no hardware or OS stated.",
+  "claimed_speedup": "approximately 6x decode throughput over Decodable + JSONDecoder on twitter.json",
+  "workload": "Decoding twitter.json into model types",
+  "metric": "throughput",
+  "hardware": "",
+  "os": "",
+  "toolchain": "Swift 6.3 required; swift test --configuration release --filter NewCodableBenchmarks",
+  "benchmark_date": "2026-03-06",
+  "benchmark_url": "https://forums.swift.org/t/new-codable-prototype-available-for-feedback/85186",
+  "repo_url": "https://github.com/swiftlang/swift-foundation",
+  "docs_url": null,
+  "license": "Apache-2.0",
+  "usability": "copyable",
+  "language": "Swift",
+  "platforms": "Swift 6.3 toolchains (experimental branch)",
+  "install": "Swift Package Manager (branch experimental/new-codable, import NewCodable)",
+  "maintenance_status": "active",
+  "stars": 2690,
+  "last_commit": "2026-10-28",
+  "one_liner": "Apple's prototype successor to Codable for JSON; about 6x JSONDecoder's throughput on twitter.json, on an experimental branch.",
+  "how_it_is_fast": "Types conform to format-specific protocols (JSONDecodable) that a parser-driven decoder (JSONParserDecoder) calls directly, so values are decoded while the bytes are parsed, without an intermediate representation and without the existential containers of Decoder and KeyedDecodingContainer. The design follows Rust's serde and the musli crate.",
+  "use_it_when": [
+    "Trying Codable's successor ahead of release and sending feedback",
+    "Benchmarking your own models against JSONDecoder to see what the new design buys"
+  ],
+  "skip_it_when": [
+    "Production code: the branch has TODOs, placeholder names and some failing tests",
+    "Toolchains older than Swift 6.3"
+  ],
+  "caveats": [
+    "One file (twitter.json), measured by the author ('I personally observe') on benchmark infrastructure the post calls bespoke.",
+    "The author says it still falls somewhat short of simdjson and serde in throughput.",
+    "API names (NewJSONDecoder and others) are placeholders; macros are planned but not designed yet."
+  ],
+  "tradeoffs": [
+    "Requires adopting new protocols (JSONDecodable / CommonDecodable) instead of Codable",
+    "Unreleased; may change"
+  ],
+  "evidence": [
+    {
+      "url": "https://forums.swift.org/t/new-codable-prototype-available-for-feedback/85186",
+      "quote": "provide a throughput improvement of approximately 6x over"
+    },
+    {
+      "url": "https://forums.swift.org/t/new-codable-prototype-available-for-feedback/85186",
+      "quote": "Swift 6.3 is required."
+    },
+    {
+      "url": "https://forums.swift.org/t/new-codable-prototype-available-for-feedback/85186",
+      "quote": "we still do currently fall somewhat short of simdjson and serde in terms of throughput."
+    }
+  ],
+  "checked": "2026-10-28"
+}

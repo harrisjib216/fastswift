@@ -1,0 +1,71 @@
+{
+  "id": "https://github.com/nicklockwood/swiftformat",
+  "name": "SwiftFormat",
+  "domain": "tooling",
+  "category": "developer-tools",
+  "baseline": "swift-format (swiftlang/swift-format)",
+  "verdict": "downgrade",
+  "verdict_reason": "The only published head-to-head is NSHipster's 2019 timing of one small file: SwiftFormat 0.03 s, swift-format 0.24 s. That swift-format build used Swift 4.2's slowest way to get a syntax tree and has since moved to the Swift-native parser, and no current large-codebase comparison exists.",
+  "evidence_tier": "B",
+  "tier_reason": "Independent third-party timing with hardware stated, but a single small file and 2019-era versions.",
+  "claimed_speedup": "0.03 s vs 0.24 s real time to format one example file (about 8x, derived from page data)",
+  "workload": "Formatting a single short Swift example file with default settings, timed with time(1)",
+  "metric": "time",
+  "hardware": "2017 MacBook Pro, 2.9 GHz Intel Core i7, 16 GB RAM",
+  "os": "",
+  "toolchain": "SwiftFormat 0.38-era; swift-format 0.0.1 (2019-05-15) on Swift 4.2 SwiftSyntax",
+  "benchmark_date": "2019-05",
+  "benchmark_url": "https://nshipster.com/swift-format/",
+  "repo_url": "https://github.com/nicklockwood/SwiftFormat",
+  "docs_url": null,
+  "license": "MIT",
+  "usability": "copyable",
+  "language": "Swift",
+  "platforms": "macOS, Linux",
+  "install": "Homebrew, Mint, CocoaPods, Swift Package Manager plugin",
+  "maintenance_status": "active",
+  "stars": 8949,
+  "last_commit": "2026-10-27",
+  "one_liner": "Swift code formatter with its own tokenizer; timed 8x faster than swift-format on one small file in 2019, unmeasured since.",
+  "how_it_is_fast": "SwiftFormat uses its own lightweight tokenizer and applies rules to the token stream, rather than building a full syntax tree. In 2019 swift-format had to run swiftc and parse a large JSON file to get its tree, which dominated the timing.",
+  "use_it_when": [
+    "Format-on-save or pre-commit hooks where per-file latency matters",
+    "Teams already standardized on SwiftFormat's rule set"
+  ],
+  "skip_it_when": [
+    "Choosing on speed alone today: the measured gap is from 2019 and swift-format's parser has since been rewritten",
+    "Projects that want the formatter shipped with the Swift toolchain (swift-format is included in Swift 6 toolchains)"
+  ],
+  "caveats": [
+    "One small file; process startup likely dominates both timings",
+    "2019 versions on an Intel MacBook Pro; swift-format then used Swift 4.2's slow SwiftSyntax path",
+    "No modern benchmark of either tool on a large codebase was found"
+  ],
+  "tradeoffs": [
+    "Its own parser can lag new Swift syntax compared with SwiftSyntax-based tools",
+    "Different default style and rule set from swift-format"
+  ],
+  "evidence": [
+    {
+      "url": "https://nshipster.com/swift-format/",
+      "quote": "Timings are measured in seconds and taken on a 2017 MacBook Pro with 2.9 GHz Intel Core i7 processor and 16 GB 2133 MHz LPDDR3 memory."
+    },
+    {
+      "url": "https://nshipster.com/swift-format/",
+      "quote": "SwiftFormat is consistently the fastest of the tools tested in this article, completing in a few milliseconds. $ time swiftformat Example.swift 0.03 real 0.01 user 0.01 sys"
+    },
+    {
+      "url": "https://nshipster.com/swift-format/",
+      "quote": "$ time swift-format Example.swift 0.24 real 0.16 user 0.14 sys"
+    },
+    {
+      "url": "https://nshipster.com/swift-format/",
+      "quote": "Our initial benchmarks reflected the Swift 4.2 version of SwiftSyntax, which predates these optimizations."
+    },
+    {
+      "url": "https://forums.swift.org/t/se-0250-swift-code-style-guidelines-and-formatter/21795/157",
+      "quote": "the NSHipster article compared swift-format using swift-4.2 which only provides the slowest available way to get a SwiftSyntax tree (invoke the swiftc binary and parse a large JSON file)"
+    }
+  ],
+  "checked": "2026-10-28"
+}

@@ -1,0 +1,68 @@
+{
+  "id": "https://github.com/spotify/xcremotecache",
+  "name": "XCRemoteCache",
+  "domain": "tooling",
+  "category": "build-and-caching",
+  "baseline": "xcodebuild / Xcode builds with no remote cache",
+  "verdict": "downgrade",
+  "verdict_reason": "The 70% cut is real for Spotify's clean builds, but incremental builds improved only 6%, the measurement is from the Xcode 12-13 era, the tool needs the integrated Swift driver turned off and does not support SwiftPM dependencies, and it has had no commits since July 2024 while an Xcode 26 compatibility pull request is still open.",
+  "evidence_tier": "C",
+  "tier_reason": "First-party A/B rollout numbers from Spotify with no hardware, Xcode version or raw timings.",
+  "claimed_speedup": "Median clean build times down 70% and incremental build times down 6% in a one-week rollout to 50% of developers",
+  "workload": "Spotify's main iOS app, more than 400 modules as separate Xcode targets; a build counts as clean when at least 50% of targets compile at least one file",
+  "metric": "build time",
+  "hardware": "",
+  "os": "",
+  "toolchain": "",
+  "benchmark_date": "2021-11",
+  "benchmark_url": "https://engineering.atspotify.com/introducing-xcremotecache-the-ios-remote-caching-tool-that-cut-our-clean-build-times-by-70/",
+  "repo_url": "https://github.com/spotify/XCRemoteCache",
+  "docs_url": null,
+  "license": "Apache-2.0",
+  "usability": "copyable",
+  "language": "Swift",
+  "platforms": "macOS, Xcode 11.4+",
+  "install": "Release binaries plus build-setting wrappers via xcprepare; CocoaPods plugin (cocoapods-xcremotecache)",
+  "maintenance_status": "stale",
+  "stars": 872,
+  "last_commit": "2024-07-10",
+  "one_liner": "Spotify's remote cache for Xcode builds; cut median clean builds 70% at Spotify, but needs old driver settings and has stalled.",
+  "how_it_is_fast": "It wraps clang and swiftc with fake compilers that check whether a target's inputs match artifacts produced on CI for the same primary-branch commit. On a hit it downloads the target's build products instead of compiling, so only targets that changed locally are compiled. It caches per target, trading hit rate against network overhead.",
+  "use_it_when": [
+    "Large, heavily modularized Xcode projects (hundreds of targets) built from a shared primary branch",
+    "CI already builds every primary-branch commit and can upload artifacts"
+  ],
+  "skip_it_when": [
+    "Projects with Swift Package Manager dependencies, which it cannot cache",
+    "Xcode 26 and later until compatibility lands; consider Xcode's own compilation cache instead",
+    "Small projects or branches far from the primary branch, where the hit rate is low"
+  ],
+  "caveats": [
+    "Numbers are Spotify's own, measured on one app around 2020-2021 and published November 2021",
+    "No raw timings, hardware or Xcode version",
+    "The README says the integrated Swift driver (default since Xcode 14) must be disabled, which removes some of Xcode's own build parallelism"
+  ],
+  "tradeoffs": [
+    "Requires a cache server (S3, GCS or the bundled Docker server) and a CI producer",
+    "Must run xcprepare after each merge or rebase or the hit rate drops"
+  ],
+  "evidence": [
+    {
+      "url": "https://engineering.atspotify.com/introducing-xcremotecache-the-ios-remote-caching-tool-that-cut-our-clean-build-times-by-70/",
+      "quote": "median clean build and incremental build times decreased by 70% and 6%, respectively. We classify builds as clean when at least 50% of all targets compile at least one file."
+    },
+    {
+      "url": "https://engineering.atspotify.com/introducing-xcremotecache-the-ios-remote-caching-tool-that-cut-our-clean-build-times-by-70/",
+      "quote": "rolled out the remote cache to 50% of our developers for a week and compared all build metrics"
+    },
+    {
+      "url": "https://github.com/spotify/XCRemoteCache",
+      "quote": "The new Swift driver (introduced by default in Xcode 14.0) is not supported and has to be disabled when using XCRemoteCache"
+    },
+    {
+      "url": "https://github.com/spotify/XCRemoteCache",
+      "quote": "Swift Package Manager (SPM) dependencies are not supported."
+    }
+  ],
+  "checked": "2026-10-28"
+}

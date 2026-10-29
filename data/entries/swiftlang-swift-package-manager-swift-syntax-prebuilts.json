@@ -1,0 +1,71 @@
+{
+  "id": "https://github.com/swiftlang/swift-package-manager#swift-syntax-prebuilts",
+  "name": "SwiftPM prebuilt swift-syntax for macros",
+  "domain": "tooling",
+  "category": "build-and-caching",
+  "baseline": "Building swift-syntax from source for every package that uses macros (SwiftPM and Xcode before the prebuilts)",
+  "verdict": "confirm",
+  "verdict_reason": "Apple says prebuilt swift-syntax cuts clean builds 'by minutes' for some projects, and independent users report 180 s to 120 s clean builds, nearly 3 minutes saved on Linux, and a macro build penalty down from 40 s to 16 s. The gain applies only to macro-using projects on swift-syntax versions with published prebuilts.",
+  "evidence_tier": "B",
+  "tier_reason": "Numbers come from developers outside the SwiftPM team on the Swift Forums, but each is a single anecdotal report without a reproducible setup.",
+  "claimed_speedup": "Clean build from around 180s to 120s (33%) on an M4 Pro MacBook Pro; nearly 3 minutes saved on a simple Linux build; macro incremental penalty from 40s to 16s; Apple: clean builds shorter 'by minutes' for some projects",
+  "workload": "Clean and incremental builds of apps and packages that depend on macro packages built on swift-syntax",
+  "metric": "build time",
+  "hardware": "M4 Pro MacBook Pro (one report); Linux (one report)",
+  "os": "macOS, Linux",
+  "toolchain": "Swift 6.1.1 with --enable-experimental-prebuilts, Xcode 16.4 with IDEPackageEnablePrebuilts; Swift 6.2 / Xcode 26",
+  "benchmark_date": "2025-06",
+  "benchmark_url": "https://forums.swift.org/t/preview-swift-syntax-prebuilts-for-macros/80202?page=2",
+  "repo_url": "https://github.com/swiftlang/swift-package-manager",
+  "docs_url": "https://developer.apple.com/videos/play/wwdc2025/245/",
+  "license": "Apache-2.0",
+  "usability": "platform",
+  "language": "Swift",
+  "platforms": "macOS and Linux hosts",
+  "install": "built into Swift 6.2 toolchains and Xcode 26 (opt-in preview in Swift 6.1.1 and Xcode 16.4)",
+  "maintenance_status": "active",
+  "stars": 10243,
+  "last_commit": "2026-10-28",
+  "one_liner": "SwiftPM downloads a release-built swift-syntax for macros instead of compiling it, cutting minutes from clean builds.",
+  "how_it_is_fast": "Macro implementations depend on swift-syntax, a large Swift library that every clean build had to compile, which is slow in release mode and on small CI machines. SwiftPM now downloads a prebuilt binary matching the resolved swift-syntax version, the host platform and the compiler version, and falls back to building from source when none exists. The prebuilts are release builds, so macros can also run faster.",
+  "use_it_when": [
+    "Projects that depend on macro packages (swift-syntax based) and do frequent clean or CI builds",
+    "Release-configuration builds, where compiling swift-syntax is slowest"
+  ],
+  "skip_it_when": [
+    "swift-syntax versions or toolchains with no published prebuilt: SwiftPM builds from source as before",
+    "Setups that hit SDK-mismatch errors with the prebuilt modules, as several preview users did"
+  ],
+  "caveats": [
+    "All numbers are single forum reports without project details or repeated runs",
+    "Apple's own claim ('by minutes') is directional",
+    "Early previews had SDK-version mismatch errors and missing prebuilts for some toolchain versions"
+  ],
+  "tradeoffs": [
+    "Downloads binaries from download.swift.org during resolution",
+    "Prebuilts exist only for specific swift-syntax releases, and the URL pattern is not a stable API"
+  ],
+  "evidence": [
+    {
+      "url": "https://developer.apple.com/videos/play/wwdc2025/245/",
+      "quote": "To speed up your build, the latest releases of Swift PM and Xcode support pre-built swift-syntax dependencies. This completely eliminates an expensive build step, and for some projects, it reduces clean build times by minutes."
+    },
+    {
+      "url": "https://forums.swift.org/t/preview-swift-syntax-prebuilts-for-macros/80202?page=2",
+      "quote": "On an M4 Pro MBP a clean build has gone down from around 180s to 120s, a 33% improvement!"
+    },
+    {
+      "url": "https://forums.swift.org/t/preview-swift-syntax-prebuilts-for-macros/80202",
+      "quote": "Saves nearly 3 minutes for a simple build on Linux!"
+    },
+    {
+      "url": "https://forums.swift.org/t/preview-swift-syntax-prebuilts-for-macros/80202",
+      "quote": "Looks like this knocks our incremental build penalty from 40s to 16s in the Emit Swift Module phase"
+    },
+    {
+      "url": "https://forums.swift.org/t/preview-swift-syntax-prebuilts-for-macros/80202?page=2",
+      "quote": "cannot load module 'SwiftSyntax' built with SDK 'macosx15.4' when using SDK 'macosx15.5'"
+    }
+  ],
+  "checked": "2026-10-28"
+}

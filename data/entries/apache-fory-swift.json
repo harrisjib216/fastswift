@@ -1,0 +1,95 @@
+{
+  "id": "https://github.com/apache/fory#swift",
+  "name": "Apache Fory (Swift)",
+  "domain": "data-formats",
+  "category": "binary-serialization",
+  "baseline": "Codable with Foundation JSONEncoder / JSONDecoder (macOS 15.7.2); SwiftProtobuf also compared",
+  "verdict": "confirm",
+  "verdict_reason": "Its reproducible benchmark shows 11x-59x the throughput of JSONEncoder/JSONDecoder and 1.65x-5.57x that of SwiftProtobuf on six data shapes. The numbers are first-party, but the harness and run script are public.",
+  "evidence_tier": "A",
+  "tier_reason": "Benchmark source and run script (swift build -c release) are in the repo and the page states OS build, cores and memory; first-party.",
+  "claimed_speedup": "vs JSONEncoder/JSONDecoder: NumericStruct serialize 14,759,606 vs 481,278 ops/s (30.7x), deserialize 18,155,795 vs 377,802 (48.1x); MediaContent serialize 2,987,821 vs 111,200 (26.9x), deserialize 1,072,345 vs 97,799 (11.0x) (JSON ratios derived from page data). vs SwiftProtobuf: from fory (1.65x) on Sample deserialize to fory (5.57x) on MediaContentList serialize.",
+  "workload": "Serialize and deserialize six model shapes (struct of 12 int32 fields, mixed struct with arrays, nested media object graph, and lists of each) for 3 s per case",
+  "metric": "throughput (operations per second) and payload size",
+  "hardware": "MacBook Pro, 12 logical cores, 48 GB (chip not named)",
+  "os": "macOS 15.7.2 (24G325)",
+  "toolchain": "swift build -c release (run.sh); Swift version not stated",
+  "benchmark_date": "2026-08-04",
+  "benchmark_url": "https://github.com/apache/fory/blob/main/docs/benchmarks/object-serialization/xlang/swift/README.md",
+  "repo_url": "https://github.com/apache/fory",
+  "docs_url": null,
+  "license": "Apache-2.0",
+  "usability": "copyable",
+  "language": "Swift",
+  "platforms": "macOS 13+, iOS 16+, tvOS 16+, watchOS 9+, visionOS 1+",
+  "install": "Swift Package Manager (product Fory, from 1.7.7)",
+  "maintenance_status": "active",
+  "stars": 4574,
+  "last_commit": "2026-10-23",
+  "one_liner": "Macro-generated cross-language binary serializer; 11-59x the throughput of Codable JSON and up to 5.6x SwiftProtobuf in its own benchmark.",
+  "how_it_is_fast": "Swift macros (@ForyStruct, @ForyEnum, @ForyUnion) generate a serializer per type at compile time that writes fields in a fixed order into a compact binary format with variable-length integers. At runtime there are no key strings and no Codable container existentials. The same xlang format is readable from Java, Python, Rust, Go and other Fory runtimes.",
+  "use_it_when": [
+    "Object serialization where you control both ends, in-process or across languages",
+    "Object graphs with shared or circular references (trackRef)"
+  ],
+  "skip_it_when": [
+    "Human-readable or third-party JSON interchange",
+    "Builds that cannot take a swift-syntax macro dependency"
+  ],
+  "caveats": [
+    "First-party benchmark; Fory wins every row of its own table.",
+    "CPU model not named; one run of 3 s per case.",
+    "Repository star count covers the whole multi-language project, not the Swift package."
+  ],
+  "tradeoffs": [
+    "Depends on swift-syntax for its macros, which adds build time",
+    "Fory-specific wire format; some payloads are larger than protobuf's (Sample: 445 vs 375 bytes)"
+  ],
+  "evidence": [
+    {
+      "url": "https://github.com/apache/fory/blob/main/benchmarks/swift/README.md",
+      "quote": "- **Fory**: Apache Fory Swift implementation (`swift/Sources/Fory`)"
+    },
+    {
+      "url": "https://github.com/apache/fory/blob/main/benchmarks/swift/README.md",
+      "quote": "- **JSON**: Foundation `JSONEncoder` and `JSONDecoder`"
+    },
+    {
+      "url": "https://github.com/apache/fory/blob/main/docs/benchmarks/object-serialization/xlang/swift/README.md",
+      "quote": "| OS                    | Version 15.7.2 (Build 24G325) |"
+    },
+    {
+      "url": "https://github.com/apache/fory/blob/main/benchmarks/swift/run.sh",
+      "quote": "swift build -c release --product swift-benchmark"
+    },
+    {
+      "url": "https://github.com/apache/fory/blob/main/docs/benchmarks/object-serialization/xlang/swift/README.md",
+      "quote": "| Sample            | Deserialize |  1,509,740 |      916,626 |   52,897 | fory (1.65x) |"
+    },
+    {
+      "url": "https://github.com/apache/fory/blob/main/docs/benchmarks/object-serialization/xlang/swift/README.md",
+      "quote": "| MediaContentList  | Serialize   |    657,276 |      118,004 |   22,744 | fory (5.57x) |"
+    },
+    {
+      "url": "https://github.com/apache/fory/blob/main/docs/benchmarks/object-serialization/xlang/swift/README.md",
+      "quote": "| Sample            |  445 |      375 |  696 |"
+    },
+    {
+      "url": "https://github.com/apache/fory/blob/main/docs/benchmarks/object-serialization/xlang/swift/README.md",
+      "quote": "| NumericStruct     | Serialize   | 14,759,606 |    7,572,190 |  481,278 | fory (1.95x) |"
+    },
+    {
+      "url": "https://github.com/apache/fory/blob/main/docs/benchmarks/object-serialization/xlang/swift/README.md",
+      "quote": "| NumericStruct     | Deserialize | 18,155,795 |    7,317,942 |  377,802 | fory (2.48x) |"
+    },
+    {
+      "url": "https://github.com/apache/fory/blob/main/docs/benchmarks/object-serialization/xlang/swift/README.md",
+      "quote": "| MediaContent      | Serialize   |  2,987,821 |      784,863 |  111,200 | fory (3.81x) |"
+    },
+    {
+      "url": "https://github.com/apache/fory/blob/main/docs/benchmarks/object-serialization/xlang/swift/README.md",
+      "quote": "| MediaContent      | Deserialize |  1,072,345 |      549,726 |   97,799 | fory (1.95x) |"
+    }
+  ],
+  "checked": "2026-10-28"
+}

@@ -1,0 +1,72 @@
+{
+  "id": "https://github.com/reers/reerjson",
+  "name": "ReerJSON",
+  "domain": "data-formats",
+  "category": "json",
+  "baseline": "Foundation JSONDecoder / JSONEncoder, both before iOS 17 and after the swift-foundation rewrite (iOS 26, macOS 15.6)",
+  "verdict": "confirm",
+  "verdict_reason": "Its charts show it ahead of the current Foundation decoder and encoder on every test file on iPhone and Mac, and the benchmark app is public. The figures exist only as images and come from the library's authors, so the claim stands on weak evidence.",
+  "evidence_tier": "D",
+  "tier_reason": "Every number is in a chart image; the README text has no figures.",
+  "claimed_speedup": "No figures in text; README charts (images) show it ahead of Foundation JSONDecoder and JSONEncoder on iOS 17+, on earlier iOS, and on macOS",
+  "workload": "Decoding and encoding the github_events, twitter, apache_builds, canada and random JSON fixtures with Codable models (chart labels)",
+  "metric": "throughput (operations per second)",
+  "hardware": "iPhone 15 Pro, iPhone 14 Plus, Apple M4 Pro MacBook Pro (chart subtitles)",
+  "os": "iOS 26.0 and 26.4.1, iOS 16.1.2, macOS 15.6 (chart subtitles)",
+  "toolchain": "",
+  "benchmark_date": "2025-09",
+  "benchmark_url": "https://github.com/reers/ReerJSON/blob/main/README.md",
+  "repo_url": "https://github.com/reers/ReerJSON",
+  "docs_url": null,
+  "license": "MIT",
+  "usability": "copyable",
+  "language": "Swift + C",
+  "platforms": "iOS 15+, macOS 12+, tvOS 15+, watchOS 9+, visionOS 1+",
+  "install": "Swift Package Manager",
+  "maintenance_status": "active",
+  "stars": 48,
+  "last_commit": "2026-09-25",
+  "one_liner": "yyjson-backed drop-in JSONDecoder/JSONEncoder; its charts show it ahead of Foundation on iOS 26, but the numbers are only in images.",
+  "how_it_is_fast": "It parses with yyjson, a C library that builds a compact immutable document in one pass with very few allocations, then runs a Codable decoder over that document. Encoding builds a yyjson mutable document and serializes it in C instead of going through Foundation's encoder.",
+  "use_it_when": [
+    "You want a drop-in JSONDecoder/JSONEncoder replacement and have measured JSON as a hotspot on your own devices",
+    "Number-heavy payloads (the canada.json fixture shows the largest gap in the charts)"
+  ],
+  "skip_it_when": [
+    "Your toolchain is older than Swift 6.4, which the package requires",
+    "You need published, reproducible numbers before adopting: there are none in text"
+  ],
+  "caveats": [
+    "Numbers are only in chart images (screenshots). Read off the images: the iOS 26.0 iPhone 15 Pro decode chart shows about 1.5x-3.8x Foundation's throughput, and the iOS 26.4.1 encode chart about 2.3x-6.5x.",
+    "Benchmarks are by the library's authors; the benchmark app (Asura19/ReerJSONBenchmark) has no README or committed results.",
+    "No Swift version or build configuration is stated for the runs."
+  ],
+  "tradeoffs": [
+    "Bundles yyjson (C), adding binary size",
+    "Requires a Swift 6.4 toolchain",
+    "The README notes that on older chips such as the A11, yyjson's build-a-DOM-then-serialize encoder can lose to IkigaJSON's streaming encoder"
+  ],
+  "evidence": [
+    {
+      "url": "https://github.com/reers/ReerJSON/blob/main/README.md",
+      "quote": "A faster version of JSONDecoder & JSONEncoder powered by"
+    },
+    {
+      "url": "https://github.com/reers/ReerJSON/blob/main/README.md",
+      "quote": "Tested with ReerJSON 1.0.1, ZippyJSON 1.2.15, IkigaJSON 2.3.2"
+    },
+    {
+      "url": "https://github.com/reers/ReerJSON/blob/main/README.md",
+      "quote": "ReerJSON requires Swift 6.4 or newer"
+    },
+    {
+      "url": "https://github.com/reers/ReerJSON/blob/main/README.md",
+      "quote": "### iOS 17+"
+    },
+    {
+      "url": "https://github.com/reers/ReerJSON/blob/main/README.md",
+      "quote": "### Lower than iOS 17"
+    }
+  ],
+  "checked": "2026-10-28"
+}

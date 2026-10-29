@@ -1,0 +1,111 @@
+# FlexLayout (Yoga flexbox)
+
+<sub>[fastswift](../../../README.md) › [Catalog](../../README.md) › [UI and rendering](../README.md) › [Layout](README.md)</sub>
+
+**Tier A** (reproducible public benchmark) · 🟡 Holds up in part · Open source · `Swift + C++` · `MIT` · 🟢 active
+
+> Swift wrapper over Meta's Yoga flexbox engine; about 4x faster than UIStackView on current iPhones in LayoutFrameworkBenchmark.
+
+| | |
+|---|---|
+| **Beats** | UIStackView (and Auto Layout) laying out self-sizing UICollectionView cells |
+| **Claimed result** | README: 'between 8x and 12x faster than UIStackViews' (iPhone 5S to X). Current data, 100 cells: iPhone 16 0.019 s vs 0.0728 s UIStackView (3.8x, derived from page data) and 0.0595 s Auto Layout (3.1x, derived from page data); iPhone 13 Pro iOS 18.6 0.0192 s vs 0.0786 s UIStackView (4.1x, derived from page data) and 0.064 s Auto Layout (3.3x, derived from page data); manual frame layout 0.0208 s and 0.0216 s. |
+| **Workload** | Lay out a feed-style UICollectionView cell for 10 to 100 cells per pass; seconds for vc.view.layoutIfNeeded() on the main thread. |
+| **Metric** | time |
+| **Hardware** | iPhone 16; iPhone 13 Pro; older runs on iPhone 5S to XS |
+| **OS** | iOS 18.6 (iPhone 13 Pro); iPhone 16 OS not stated; iOS 11 to 12 for older runs |
+| **Toolchain** | Release mode per benchmark README; exact Swift version not stated |
+| **Measured** | 2025-08 |
+| **Adoption** | 2.1k stars |
+| **Last commit** | 2026-08-30 |
+| **Platforms** | iOS 13+ |
+| **Install** | Swift Package Manager, CocoaPods |
+| **Links** | [repository](https://github.com/layoutBox/FlexLayout) · [benchmark](https://docs.google.com/spreadsheets/d/1sUNdGWBM-d_W13yC7VcfkRXC3owCVsnIublnfW-4xn4/edit#gid=1032991425) |
+
+## Verdict
+
+FlexLayout still beats UIStackView and matches manual frame code, but the README's 8x-12x figure is from iPhone 5S to X on iOS 11. Current runs of the same benchmark show 3.8x (iPhone 16) and 4.1x (iPhone 13 Pro, iOS 18.6) over UIStackView.
+
+**Why tier A:** Public LayoutFrameworkBenchmark app with per-device raw data, device and iOS version stated, Release mode; maintained by the FlexLayout authors.
+
+## Use it when
+
+- Screens built from nested UIStackViews that show up in Time Profiler, especially inside scrolling cells
+- Teams that already think in CSS flexbox or share layout logic with React Native
+
+## Skip it when
+
+- SwiftUI views
+- Simple screens where UIStackView cost is not measurable
+- Projects that cannot take a C++ dependency
+
+## How it is fast
+
+FlexLayout hands layout to Yoga, a C++ flexbox implementation that computes frames in a single tree pass and caches measurements. UIStackView is built on Auto Layout, so every arranged subview adds constraints to the engine. Yoga avoids constraint solving altogether and writes frames directly.
+
+## What it costs
+
+- Adds Yoga (C++) to the binary.
+- Layout is described in a flexbox DSL rather than constraints; no Interface Builder support.
+
+## Problems with the evidence
+
+- The 8x-12x figure is from 2017-2018 devices on iOS 11; current devices show 3.8x-4.1x over UIStackView.
+- The benchmark is maintained by the same authors as FlexLayout.
+- The iPhone 16 sheet labels the row 'FlexLayout 1.3' while the iPhone 13 Pro sheet says 'FlexLayout 2.2', so the version actually run on iPhone 16 is unclear.
+- Yoga itself is not benchmarked directly; the README says only the FlexLayout wrapper was measured.
+
+## Evidence
+
+<details>
+<summary>12 quotes from the sources, checked 2026-10-28</summary>
+
+> FlexLayout and PinLayout are **between 8x and 12x faster than UIStackViews**, and this for all types of iPhone (5S/6/6S/7/8/X)
+>
+> — [github.com/layoutBox/FlexLayout/blob/master/README.md](https://github.com/layoutBox/FlexLayout/blob/master/README.md)
+
+> ,iPhone16,iPhone 13 Pro (iOS 18.6),iPhone XS/ iOS 12
+>
+> — [docs.google.com/spreadsheets/d/1sUNdGWBM-d_W13yC7VcfkRXC3owCVsnIubl…](https://docs.google.com/spreadsheets/d/1sUNdGWBM-d_W13yC7VcfkRXC3owCVsnIublnfW-4xn4/export?format=csv&gid=1032991425)
+
+> Number of Cells in a UICollectionView ,10,20,30,40,50,60,70,80,90,100
+>
+> — [docs.google.com/spreadsheets/d/1sUNdGWBM-d_W13yC7VcfkRXC3owCVsnIubl…](https://docs.google.com/spreadsheets/d/1sUNdGWBM-d_W13yC7VcfkRXC3owCVsnIublnfW-4xn4/export?format=csv&gid=1326117825)
+
+> FlexLayout 1.3,0.0037,0.0055,0.0072,0.0089,0.0107,0.0124,0.0142,0.0156,0.0176,0.019
+>
+> — [docs.google.com/spreadsheets/d/1sUNdGWBM-d_W13yC7VcfkRXC3owCVsnIubl…](https://docs.google.com/spreadsheets/d/1sUNdGWBM-d_W13yC7VcfkRXC3owCVsnIublnfW-4xn4/export?format=csv&gid=1326117825)
+
+> UIStackView,0.0122,0.0189,0.0256,0.0317,0.039,0.0467,0.0525,0.0604,0.0672,0.0728
+>
+> — [docs.google.com/spreadsheets/d/1sUNdGWBM-d_W13yC7VcfkRXC3owCVsnIubl…](https://docs.google.com/spreadsheets/d/1sUNdGWBM-d_W13yC7VcfkRXC3owCVsnIublnfW-4xn4/export?format=csv&gid=1326117825)
+
+> Auto Layout,0.0094,0.0146,0.02,0.0261,0.031,0.0378,0.0421,0.047,0.0538,0.0595
+>
+> — [docs.google.com/spreadsheets/d/1sUNdGWBM-d_W13yC7VcfkRXC3owCVsnIubl…](https://docs.google.com/spreadsheets/d/1sUNdGWBM-d_W13yC7VcfkRXC3owCVsnIublnfW-4xn4/export?format=csv&gid=1326117825)
+
+> Manual Layout ,0.0039,0.0059,0.0077,0.0096,0.0116,0.0132,0.0151,0.0172,0.0189,0.0208
+>
+> — [docs.google.com/spreadsheets/d/1sUNdGWBM-d_W13yC7VcfkRXC3owCVsnIubl…](https://docs.google.com/spreadsheets/d/1sUNdGWBM-d_W13yC7VcfkRXC3owCVsnIublnfW-4xn4/export?format=csv&gid=1326117825)
+
+> FlexLayout 2.2,0.0036,0.005,0.0067,0.0085,0.0102,0.012,0.0139,0.0157,0.0174,0.0192
+>
+> — [docs.google.com/spreadsheets/d/1sUNdGWBM-d_W13yC7VcfkRXC3owCVsnIubl…](https://docs.google.com/spreadsheets/d/1sUNdGWBM-d_W13yC7VcfkRXC3owCVsnIublnfW-4xn4/export?format=csv&gid=70868672)
+
+> UIStackView,0.0119,0.0187,0.0261,0.0336,0.0411,0.0486,0.056,0.0647,0.0716,0.0786
+>
+> — [docs.google.com/spreadsheets/d/1sUNdGWBM-d_W13yC7VcfkRXC3owCVsnIubl…](https://docs.google.com/spreadsheets/d/1sUNdGWBM-d_W13yC7VcfkRXC3owCVsnIublnfW-4xn4/export?format=csv&gid=70868672)
+
+> Auto Layout,0.0094,0.0152,0.0212,0.0273,0.0333,0.0397,0.0457,0.0517,0.0582,0.064
+>
+> — [docs.google.com/spreadsheets/d/1sUNdGWBM-d_W13yC7VcfkRXC3owCVsnIubl…](https://docs.google.com/spreadsheets/d/1sUNdGWBM-d_W13yC7VcfkRXC3owCVsnIublnfW-4xn4/export?format=csv&gid=70868672)
+
+> Manual Layout ,0.0038,0.0055,0.0075,0.0094,0.0114,0.0136,0.0153,0.0175,0.0197,0.0216
+>
+> — [docs.google.com/spreadsheets/d/1sUNdGWBM-d_W13yC7VcfkRXC3owCVsnIubl…](https://docs.google.com/spreadsheets/d/1sUNdGWBM-d_W13yC7VcfkRXC3owCVsnIublnfW-4xn4/export?format=csv&gid=70868672)
+
+> Yoga's performance hasn't been tested directly, but FlexLayout has.
+>
+> — [github.com/layoutBox/LayoutFrameworkBenchmark/blob/master/README.md](https://github.com/layoutBox/LayoutFrameworkBenchmark/blob/master/README.md)
+
+</details>

@@ -1,0 +1,76 @@
+{
+  "id": "https://github.com/airbnb/lottie-ios#core-animation-engine",
+  "name": "lottie-ios (Core Animation rendering engine)",
+  "domain": "ui-and-rendering",
+  "category": "animation-and-vector",
+  "baseline": "Lottie's Main Thread rendering engine (the only engine before 3.4.0, default before 4.0)",
+  "verdict": "downgrade",
+  "verdict_reason": "Moving playback into Core Animation does stop per-frame main-thread work, which Airbnb says cost 5-20%+ CPU. But 'no CPU' is measured in the app process only: the work moves to the system render server. Setting up the layer tree still runs on the main thread, and users report frame drops when many animations are set up while scrolling.",
+  "evidence_tier": "C",
+  "tier_reason": "First-party release notes and announcement with one approximate CPU range and no device, animation set or method.",
+  "claimed_speedup": "Main Thread engine: 'Animations would consume 5-20%+ of the CPU while playing'; Core Animation engine: once playing, 'they do not consume any of the app’s CPU resources'. Counter-report: frames drop to 8-10 fps when setting animations in many table cells while scrolling (Lottie 4.0.1).",
+  "workload": "Playing Lottie animations in an app; no specific animation or device published.",
+  "metric": "CPU usage",
+  "hardware": "",
+  "os": "",
+  "toolchain": "",
+  "benchmark_date": "2022-07-06",
+  "benchmark_url": "https://github.com/airbnb/lottie-ios/discussions/1627",
+  "repo_url": "https://github.com/airbnb/lottie-ios",
+  "docs_url": null,
+  "license": "Apache-2.0",
+  "usability": "copyable",
+  "language": "Swift",
+  "platforms": "iOS 15+, macOS 10.15+, tvOS 13+, visionOS 1+",
+  "install": "Swift Package Manager, CocoaPods, Carthage",
+  "maintenance_status": "active",
+  "stars": 26917,
+  "last_commit": "2026-10-06",
+  "one_liner": "Lottie's default iOS renderer since 4.0: plays animations as CAAnimations in the render server instead of redrawing on the main thread each frame.",
+  "how_it_is_fast": "The Core Animation engine converts the Lottie JSON into a CALayer tree with CAAnimation keyframes once, then hands playback to the system render server. The Main Thread engine instead advanced and re-rendered the animation from a display link on every frame. Unsupported features make the automatic mode fall back to the Main Thread engine.",
+  "use_it_when": [
+    "Animations that keep playing while the main thread is busy (launch, loading, onboarding)",
+    "Screens where Lottie's per-frame main-thread cost showed up in Time Profiler"
+  ],
+  "skip_it_when": [
+    "Many animations created during fast scrolling, where layer-tree setup on the main thread causes drops",
+    "Animations that use features the engine does not support, which fall back to the Main Thread engine anyway",
+    "Code that needs per-frame value providers or keypath operations the engine does not support"
+  ],
+  "caveats": [
+    "'No CPU' refers to the app process; Rive's documentation notes Core Animation work is reported by backboardd, which Xcode does not show by default.",
+    "No device, animation set or measurement method published for the 5-20% figure.",
+    "Airbnb's launch-time experiment is described without numbers in coverage of the 4.0 announcement."
+  ],
+  "tradeoffs": [
+    "Up-front setup cost on the main thread when an animation is assigned.",
+    "Feature coverage is narrower than the Main Thread engine."
+  ],
+  "evidence": [
+    {
+      "url": "https://github.com/airbnb/lottie-ios/discussions/1627",
+      "quote": "Animations would consume 5-20%+ of the CPU while playing, leaving fewer CPU cycles available for the rest of the application."
+    },
+    {
+      "url": "https://github.com/airbnb/lottie-ios/discussions/1627",
+      "quote": "Once animations begin playing, they do not consume any of the app’s CPU resources"
+    },
+    {
+      "url": "https://api.github.com/repos/airbnb/lottie-ios/releases/tags/4.0.0",
+      "quote": "Animations that use features which are not supported by the Core Animation rendering engine will automatically fall back to using the original Main Thread rendering engine."
+    },
+    {
+      "url": "https://api.github.com/repos/airbnb/lottie-ios/issues/1885",
+      "quote": "Frames drop to 8-10 fps if I scroll really fast"
+    },
+    {
+      "url": "https://api.github.com/repos/airbnb/lottie-ios/issues/1885",
+      "quote": "Lottie 4.0.1"
+    },
+    {
+      "url": "https://rive.app/docs/runtimes/apple/resource-usage.md",
+      "quote": "Other APIs can make use of other system processes, the stats of which will not be immediately visible by Xcode or Instruments."
+    }
+  ],
+  "checked": "2026-10-28"
+}

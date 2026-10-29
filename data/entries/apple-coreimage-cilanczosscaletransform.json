@@ -1,0 +1,71 @@
+{
+  "id": "apple:coreimage#cilanczosscaletransform",
+  "name": "Core Image (CILanczosScaleTransform)",
+  "domain": "images-and-media",
+  "category": "resizing-and-processing",
+  "baseline": "UIGraphicsImageRenderer drawing a UIImage(contentsOfFile:) into a smaller context",
+  "verdict": "reject",
+  "verdict_reason": "NSHipster measured 2.4983 s against 0.1420 s for UIKit (about 17.6x slower) with a shared GPU CIContext on an iPhone 7, and the article points to Apple's own Core Image performance guidance to crop and downsample with Core Graphics or Image I/O instead. Forcing the software renderer was an order of magnitude slower again.",
+  "evidence_tier": "B",
+  "tier_reason": "Independent measurement (NSHipster) with public code and the device and OS stated, run in the Debug test configuration.",
+  "claimed_speedup": "No speedup measured: Core Image 2.4983 s vs UIKit 0.1420 s (17.6x slower, derived from page data); the software renderer was 'an order of magnitude slower' still.",
+  "workload": "Load a 12,000 px square, 20 MB JPEG from disk, scale it to 100 x 100 with CILanczosScaleTransform through a shared GPU CIContext and return a UIImage; average of XCTest measure() iterations.",
+  "metric": "time",
+  "hardware": "iPhone 7",
+  "os": "iOS 12.2",
+  "toolchain": "Swift 5.0; Debug test configuration in the example project's scheme",
+  "benchmark_date": "2019-05-06",
+  "benchmark_url": "https://nshipster.com/image-resizing/",
+  "repo_url": null,
+  "docs_url": "https://developer.apple.com/documentation/coreimage",
+  "license": "Apple SDK",
+  "usability": "platform",
+  "language": "Objective-C",
+  "platforms": "iOS, macOS, tvOS, visionOS",
+  "install": "built into iOS and macOS",
+  "maintenance_status": "active",
+  "stars": null,
+  "last_commit": "",
+  "one_liner": "Core Image's Lanczos scale filter; resizing a JPEG from disk was about 17.6x slower than UIGraphicsImageRenderer on an iPhone 7.",
+  "how_it_is_fast": "Core Image builds a filter graph and renders it on the GPU through a CIContext, applying a Lanczos kernel. For a one-off resize that means decoding the full image, uploading it, rendering and reading back, which outweighs the GPU's arithmetic advantage.",
+  "use_it_when": [
+    "Resizing is one step in a longer Core Image filter chain that stays on the GPU, such as photo or video effects",
+    "You need Lanczos quality and already render through a shared CIContext"
+  ],
+  "skip_it_when": [
+    "One-off resizing of images loaded from disk or the network",
+    "Creating a CIContext per call, or using the software renderer"
+  ],
+  "caveats": [
+    "Debug test configuration; the timed work is mostly inside Apple's frameworks",
+    "iPhone 7 with iOS 12.2 (2019); Core Image's Metal backend has changed since",
+    "Decode, render and readback are timed together"
+  ],
+  "tradeoffs": [
+    "Needs a long-lived CIContext and GPU access",
+    "Full-resolution decode before filtering"
+  ],
+  "evidence": [
+    {
+      "url": "https://github.com/NSHipster/articles/blob/master/2019-05-06-image-resizing.md",
+      "quote": "performed on an iPhone 7 running iOS 12.2,"
+    },
+    {
+      "url": "https://github.com/NSHipster/articles/blob/master/2019-05-06-image-resizing.md",
+      "quote": "| Technique #1: `UIKit` | 0.1420 |"
+    },
+    {
+      "url": "https://github.com/NSHipster/articles/blob/master/2019-05-06-image-resizing.md",
+      "quote": "| Technique #4: `Core Image` <sup>2</sup> | 2.4983 |"
+    },
+    {
+      "url": "https://github.com/NSHipster/articles/blob/master/2019-05-06-image-resizing.md",
+      "quote": "yielded results an order of magnitude slower than base results."
+    },
+    {
+      "url": "https://github.com/NSHipster/articles/blob/master/2019-05-06-image-resizing.md",
+      "quote": "you should use Core Graphics or Image I/O functions to crop and downsample images instead of Core Image."
+    }
+  ],
+  "checked": "2026-10-28"
+}

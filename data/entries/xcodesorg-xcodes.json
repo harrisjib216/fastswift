@@ -1,0 +1,54 @@
+{
+  "id": "https://github.com/xcodesorg/xcodes",
+  "name": "xcodes (aria2 downloads)",
+  "domain": "tooling",
+  "category": "developer-tools",
+  "baseline": "Single-connection URLSession download of Xcode (xcodes without aria2, or a browser download)",
+  "verdict": "confirm",
+  "verdict_reason": "With aria2 installed, xcodes downloads Xcode over up to 16 connections and claims 3-5x faster than URLSession. The claim is first-party and unmeasured in public, but the mechanism is straightforward; the gain depends on the network and per-connection limits.",
+  "evidence_tier": "C",
+  "tier_reason": "First-party README claim with no timings, network or method.",
+  "claimed_speedup": "Downloads Xcode 3-5x faster than URLSession using up to 16 connections",
+  "workload": "Downloading Xcode .xip archives from Apple's servers",
+  "metric": "time",
+  "hardware": "",
+  "os": "",
+  "toolchain": "",
+  "benchmark_date": "",
+  "benchmark_url": "https://github.com/XcodesOrg/xcodes",
+  "repo_url": "https://github.com/XcodesOrg/xcodes",
+  "docs_url": null,
+  "license": "MIT",
+  "usability": "copyable",
+  "language": "Swift",
+  "platforms": "macOS",
+  "install": "Homebrew (brew install xcodesorg/made/xcodes), plus brew install aria2",
+  "maintenance_status": "active",
+  "stars": 4873,
+  "last_commit": "2026-09-14",
+  "one_liner": "Command-line Xcode installer that downloads over up to 16 connections with aria2, claimed 3-5x faster than URLSession.",
+  "how_it_is_fast": "When aria2 is on the PATH, xcodes hands the download to it, which splits the file into ranges fetched over up to 16 parallel connections, getting around per-connection throughput limits. It can then extract with unxip instead of xip.",
+  "use_it_when": [
+    "Installing or switching Xcode versions on CI machines or several developer Macs",
+    "Networks where a single HTTP connection does not saturate the link"
+  ],
+  "skip_it_when": [
+    "Networks or proxies that throttle per client rather than per connection",
+    "Environments that disallow third-party download tools or Apple ID logins from scripts"
+  ],
+  "caveats": [
+    "No published measurement; 3-5x depends on network and server limits",
+    "The speedup comes from aria2, a separate C++ download tool, not from xcodes' Swift code"
+  ],
+  "tradeoffs": [
+    "Needs aria2 installed separately",
+    "Requires Apple ID authentication for downloads"
+  ],
+  "evidence": [
+    {
+      "url": "https://github.com/XcodesOrg/xcodes",
+      "quote": "It uses up to 16 connections to download Xcode 3-5x faster than URLSession."
+    }
+  ],
+  "checked": "2026-10-28"
+}

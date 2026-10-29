@@ -1,0 +1,65 @@
+{
+  "id": "https://github.com/attaswift/btree",
+  "name": "BTree (attaswift)",
+  "domain": "collections",
+  "category": "ordered-and-sorted",
+  "baseline": "A sorted Swift Array kept in order with binary-search insertion",
+  "verdict": "downgrade",
+  "verdict_reason": "The README's own chart shows the B-tree level with a sorted Array up to tens of thousands of keys and pulling ahead only past roughly 30,000; the author says the interesting benefits start well over a hundred thousand items. The measurement is from the Swift 2-3 era, chart-only, and the library has had no commits since 2019.",
+  "evidence_tier": "D",
+  "tier_reason": "No B-tree timings appear in text; the comparison exists only as a chart image, with no hardware, toolchain or date stated.",
+  "claimed_speedup": "No B-tree numbers in text. The README says a sorted Array is about 6-7 times faster than a red-black tree up to about eighteen thousand items, that the B-tree's main benefits come at element counts well over a hundred thousand, and that cross-module generics cost a 10-200x slowdown on the Swift versions it targeted.",
+  "workload": "Inserting random Int keys one at a time into a sorted Array, an Array-backed red-black tree, and an Array-backed B-tree of order 1024; 128 to 262,144 keys (chart).",
+  "metric": "time",
+  "hardware": "",
+  "os": "",
+  "toolchain": "",
+  "benchmark_date": "2016",
+  "benchmark_url": "https://github.com/attaswift/BTree/blob/master/README.md",
+  "repo_url": "https://github.com/attaswift/BTree",
+  "docs_url": null,
+  "license": "MIT",
+  "usability": "copyable",
+  "language": "Swift",
+  "platforms": "macOS, iOS, watchOS, tvOS",
+  "install": "Swift Package Manager, CocoaPods, Carthage",
+  "maintenance_status": "abandoned",
+  "stars": 1321,
+  "last_commit": "2019-03-26",
+  "one_liner": "In-memory B-tree giving sorted lists, sets and maps with O(log n) insert; beats a sorted Array only at large counts.",
+  "how_it_is_fast": "Each node is a small contiguous array of up to about 16 KiB of elements, so lookups binary-search cache-friendly memory and the tree stays a few levels deep. Inserting shifts elements within one node instead of the whole collection, turning the sorted Array's O(n) insertion into O(log n). Nodes are individually copy-on-write, so mutating a copy duplicates only one path.",
+  "use_it_when": [
+    "Sorted collections of hundreds of thousands of elements with frequent inserts and removals",
+    "Sorted data that is copied and then mutated, where Array copies everything",
+    "Positional (rank) access into large sorted sets"
+  ],
+  "skip_it_when": [
+    "Fewer than tens of thousands of elements: a sorted Array was as fast or faster in the README's chart",
+    "New projects needing maintenance: no commits since 2019, written for Swift 3-4",
+    "Hot loops over simple value types, unless the code is compiled into your module or cross-module optimization specializes it"
+  ],
+  "caveats": [
+    "Chart-only evidence; no hardware, Swift version or date stated, and the chart predates Swift 4.2.",
+    "The '10-200x' cross-module generics penalty described in the README predates @inlinable (Swift 4.2) and cross-module optimization; the library does not use @inlinable, so modern behavior depends on compiler settings and is unmeasured.",
+    "The deeper benchmarks live in the paid Optimizing Collections book, which was not checked."
+  ],
+  "tradeoffs": [
+    "More code and memory overhead than a sorted Array for small collections",
+    "Unmaintained; swift-collections' SortedSet/SortedDictionary (also B-tree based) are not yet in its stable public API"
+  ],
+  "evidence": [
+    {
+      "url": "https://github.com/attaswift/BTree/blob/master/README.md",
+      "quote": "Near the beginning of the curve, up to about *eighteen thousand items*, a sorted array implementation imported from an external module is very consistently about 6-7 times faster than a red-black tree"
+    },
+    {
+      "url": "https://github.com/attaswift/BTree/blob/master/README.md",
+      "quote": "The most interesting benefits of B-trees often occur at element counts well over a hundred thousand."
+    },
+    {
+      "url": "https://github.com/attaswift/BTree/blob/master/README.md",
+      "quote": "Relying on `import` will incur a *10-200x slowdown* when your collection is holding these most basic value types."
+    }
+  ],
+  "checked": "2026-10-28"
+}
